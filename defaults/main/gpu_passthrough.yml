@@ -1,0 +1,50 @@
+---
+###############################################################################
+# GPU Passthrough Configuration
+###############################################################################
+# Configure GPU passthrough for Host and Guest.
+#
+# Reference:
+# * https://wiki.debian.org/NvidiaGraphicsDrivers
+
+# Enable GPU passthrough.
+#
+# Enables configuration of GPU passthrough. This should only be enabled on
+# nodes where passthrough is used. Enabling passthrough will automatically
+# enable 'non-free' and 'backport' repositories. Node will be rebooted
+# automatically on a configuration change which installs or changes devices.
+#
+# Default: False.
+debian_gpu_passthrough: false
+
+# GPU passthrough mode.
+#
+# Values:
+#    host: configure GPU passthrough as host (machine with hardware GPU)
+#   guest: configure GPU passthrough as guest (machine without hardware GPU)
+#
+# Default: 'guest'.
+debian_gpu_passthrough_mode: 'guest'
+
+# GPU brand.
+#
+# Values:
+#   nvidia: nvidia-based card supported in nivida-driver packages
+#      amd: amd-based card supported in mesa-vulkan packages
+#
+# Default: 'nvidia'.
+debian_gpu_brand: 'nvidia'
+
+# GPU driver version to use.
+#
+# Hosts and Guests should use the same driver version.
+#
+# Partial versions may be used (automatically globbed at the end). Recommend
+# specifying the major version and using the built in globbing for minor
+# version updates.
+#
+# If the nvidia-smi check fails when executing the role, the version specified
+# is no longer available upstream, use a newer version.
+#
+# Default: '470'.
+debian_gpu_driver: '470'

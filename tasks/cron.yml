@@ -1,0 +1,36 @@
+---
+###############################################################################
+# Configure Debian Cron
+###############################################################################
+# Create custom cronjobs to execute on the Debian node.
+#
+# Args:
+#   job_name: str - cron job name (debian_cron.{JOB})
+#   config: dict - cron job configuration (debian_cron.{JOB}.*)
+#
+# Reference:
+# * https://wiki.debian.org/cron
+
+- name: 'Cron | set standard scheduling sync'
+  ansible.builtin.cron:
+    name: 'debian custom cron {{ job_name }}'
+    month: '{{ config.month | default("*") }}'
+    weekday: '{{ config.weekday | default("*") }}'
+    day: '{{ config.day | default("*") }}'
+    hour: '{{ config.hour | default("*") }}'
+    minute: '{{ config.minute | default("*") }}'
+    user: '{{ config.user }}'
+    job: '{{ config.job }}'
+    cron_file: 'debian_custom_cron_{{ job_name }}'
+    state: '{{ config.state | default("present") }}'
+  when: config.special_time is not defined
+
+- name: 'Cron | set special time sync'
+  ansible.builtin.cron:
+    name: 'debian custom cron {{ job_name }}'
+    special_time: '{{ config.special_time }}'
+    user: '{{ config.user }}'
+    job: '{{ config.job }}'
+    cron_file: 'debian_custom_cron_{{ job_name }}'
+    state: '{{ config.state | default("present") }}'
+  when: config.special_time is defined

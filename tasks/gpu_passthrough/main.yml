@@ -1,0 +1,28 @@
+---
+- name: 'GPU passthrough | NOOP'
+  ansible.builtin.debug:
+    msg: 'GPU passthrough currently disabled until migrated'
+
+# - name: 'GPU passthrough | nvidia guest'
+#   ansible.builtin.include_tasks: 'nvidia_guest.yml'
+#   when: >
+#     debian_gpu_brand | lower == 'nvidia' and
+#     debian_gpu_passthrough_mode | lower == 'guest'
+#
+# - name: 'GPU passthrough | nvidia host'
+#   ansible.builtin.include_tasks: 'nvidia_host.yml'
+#   when: >
+#     debian_gpu_brand | lower == 'nvidia' and
+#     debian_gpu_passthrough_mode | lower == 'host'
+#
+# - name: 'GPU passthrough | amd guest'
+#   ansible.builtin.include_tasks: 'amd_guest.yml'
+#   when: >
+#     debian_gpu_brand | lower == 'amd' and
+#     debian_gpu_passthrough_mode | lower == 'guest'
+#
+# - name: 'GPU passthrough | amd host'
+#   ansible.builtin.include_tasks: 'amd_host.yml'
+#   when: >
+#     debian_gpu_brand | lower == 'amd' and
+#     debian_gpu_passthrough_mode | lower == 'host'

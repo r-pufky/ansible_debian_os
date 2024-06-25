@@ -1,0 +1,111 @@
+---
+###############################################################################
+# Debian Role Configuration
+###############################################################################
+# Fleetwide base OS configuration.
+
+###############################################################################
+# Locales
+###############################################################################
+#
+# Reference:
+# * https://en.wikipedia.org/wiki/Locale_(computer_software)
+
+# List of locales to install. Default: ['en_US.UTF-8'].
+debian_locales:
+  - 'en_US.UTF-8'
+
+# System default locale. Default: 'en_US.UTF-8'.
+debian_default_system_locale: 'en_US.UTF-8'
+
+###############################################################################
+# Timezones
+###############################################################################
+# Set system Timezone.
+#
+# Uses values from 'timedatectl list-timezones'.
+#
+# Default: 'Etc/UTC'.
+debian_timezone: 'Etc/UTC'
+
+###############################################################################
+# User accounts to configure
+###############################################################################
+
+# Set system skeleton files.
+#
+# Files will be copied from the ansible controller and replace existing
+# skeleton files in /etc/skel setting appropriate permissions. Skeleton files
+# are sync'ed before user accounts are modified.
+#
+# debian_skeleton_files: 'group_vars/all/debian/skel'
+# debian_skeleton_files: 'host_vars/custom_skel.example.com/files/skel'
+#
+# Default: '' (disabled).
+debian_skeleton_files: ''
+
+# Default users installed for debian (see r_pufky.srv.users). Default: [].
+debian_accounts: []
+
+###############################################################################
+# Cron Jobs
+###############################################################################
+# Any cron jobs for the system which are not provided by roles.
+
+# Configuration of cron jobs.
+#
+# Special Case:
+#   special_time: special_time and month,weekday,day,hour,minute settings are
+#                 mutually exclusive. If both are set special_time is used.
+#
+# debian_cron:
+#     dict - cron jobs configuration based on ansible.builtin.cron.
+#   {JOB}:
+#     month: str - month job should run in
+#         Default: '*'.
+#     weekday: str - weekday job should run in
+#         Default: '*'.
+#     day: str - day job should run in
+#         Default: '*'.
+#     hour: str - hour job should run in
+#         Default: '*'.
+#     minute: str - minute job should run in
+#         Default: '*'.
+#     special_time: str - special time specification nickname
+#         Values:
+#           annually: every year (same as yearly)
+#              daily: every day
+#             hourly: every hour
+#            monthly: every month
+#             reboot: every reboot
+#             weekly: every week
+#             yearly: every year
+#         Default: 'weekly'
+#     user: str - execute cronjob as specified user
+#     job: str - commands to execute
+#     state: str - state
+#         Values:
+#           present: create and manage the cronjob
+#           absent: delete the cronjob
+#         Default: 'present'.
+#
+# debian_cron:
+#   cron_present:
+#     special_time: 'daily'
+#     user: 'root'
+#     job: 'echo "cron job named debian_custom_cron_cron_present"'
+#     state: 'present'
+#   cron_job_2:  # expected deletion at final state
+#     month: '*'
+#     weekday: '*'
+#     day: '*'
+#     hour: '*'
+#     minute: '*'
+#     user: 'root'
+#     job: 'echo "another cron job named debian_custom_cron_cron_job_2"'
+#     state: 'present'
+#   cron_absent:
+#     state: 'absent'
+#
+# Default: {}.
+debian_cron: {}

@@ -1,0 +1,43 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Debian Distribution Upgrade Configuration (Buster -> Bullseye)
+###############################################################################
+#
+# Reference:
+# * https://www.debian.org/releases/testing/amd64/release-notes/ch-upgrading.en.html
+
+###############################################################################
+# Package Management
+###############################################################################
+
+# TODO(role): update for bookworm -> trixie release and re-enable.
+
+debian_full_upgrade_sources:
+  - 'deb http://deb.debian.org/debian/ bullseye main contrib non-free'
+  - 'deb-src http://deb.debian.org/debian/ bullseye main contrib non-free'
+  - 'deb http://deb.debian.org/debian/ bullseye-backports main contrib non-free'
+  - 'deb-src http://deb.debian.org/debian/ bullseye-backports main contrib non-free'
+  - 'deb http://security.debian.org/debian-security bullseye-security main contrib non-free'
+  - 'deb-src http://security.debian.org/debian-security bullseye-security main contrib non-free'
+
+# distro apt sources lists; from roles/debian.
+# TODO(buster): After all upgraded to bullseye, remove 'debian_buster.list'
+#               this was from a initial debian role deployment and core is used
+#               instead.
+debian_full_upgrade_core_repos:
+  - 'debian_buster.list'
+  - 'debian_core.list'
+
+# If backports, pins or non-standard apt repositories are found, should these
+# be ignored and upgrade continued? (in almost ALL cases, these should be
+# DISABLED, distribution upgrade, then re-enabled with new distro custom
+# sources as needed.)
+debian_full_upgrade_force_apt: false
+
+# If backports, pins or non-standard apt repositories are found, should these
+# automatically removed so upgrade can continue?
+debian_full_upgrade_force_remove_apt: false
+
+# TODO(role): remove when upgrade role is separated from debian.
+debian_full_upgrade_package_state: 'latest'

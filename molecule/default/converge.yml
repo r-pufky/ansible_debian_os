@@ -1,0 +1,14 @@
+---
+# Idempotent testing disabled as specific commands will never be idempotent.
+#
+# Reference:
+# * https://github.com/ansible/molecule/issues/816
+
+- name: 'Default | converge'
+  hosts: all
+  gather_facts: true
+  tags: 'molecule-idempotence-notest'
+  tasks:
+    - name: 'Default | converge | apply debian role all defaults'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.debian'

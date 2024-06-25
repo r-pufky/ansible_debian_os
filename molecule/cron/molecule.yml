@@ -1,0 +1,49 @@
+---
+# yamllint disable rule:line-length
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        debian_cron:
+          cron_present:
+            special_time: 'daily'
+            user: 'root'
+            job: 'echo cron_present'
+            state: 'present'
+          cron_absent:  # expected deletion at final state
+            month: '*'
+            weekday: '*'
+            day: '*'
+            hour: '*'
+            minute: '*'
+            user: 'root'
+            job: 'echo cron_absent'
+            state: 'present'
+platforms:
+  - name: 'debian-12'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    capabilities:
+      - 'SYS_ADMIN'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+    privileged: true  # sysctl, ulimit
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .

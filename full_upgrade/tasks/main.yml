@@ -1,0 +1,113 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Debian Distribution Upgrade (Buster -> Bullseye)
+###############################################################################
+
+- name: 'Distro upgrade | WARNING'
+  ansible.builtin.debug:
+    msg: |
+      Full upgrade will take a few minutes during install without interruption.
+
+      Machine must be managed by ansible already. BACKUP system if needed.
+
+- name: 'Distro upgrade | full-upgrade will continue in a few seconds'
+  ansible.builtin.pause:
+    seconds: 5
+    echo: false
+
+- name: 'Distro upgrade | check repositories'
+  ansible.builtin.find:
+    paths: '/etc/apt/sources.list.d'
+    file_type: 'any'
+    exclude: '{{ debian_full_upgrade_core_repos }}'
+    recurse: true
+  register: _debian_apt_sources
+
+- name: 'Distro upgrade | non-standard apt repositories (abort)'
+  ansible.builtin.fail:
+    msg: |
+      Backports, Pins, and custom repositories should be disabled before
+      upgrading.
+
+      Detected repositories
+      {% for repo in _debian_apt_sources.files %}
+      {{ repo.path }}
+      {% endfor %}
+
+      1) Verify service sources exist for new distro.
+
+      To disable this check and proceed anyway, set either based on preference
+
+        debian_full_upgrade_force_apt
+        debian_full_upgrade_force_remove_apt
+
+        --extra-vars 'debian_full_upgrade_force_remove_apt=true'
+  when: >
+    _debian_apt_sources.files | length > 0 and
+    (not debian_full_upgrade_force_apt and not debian_full_upgrade_force_remove_apt)
+
+- name: 'Distro upgrade | force remove non-standard repos'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ _debian_apt_sources.files }}'
+  when: debian_full_upgrade_force_remove_apt
+
+- name: 'Distro upgrade | upgrade to latest packages'
+  ansible.builtin.apt:
+    name: '*'
+    update_cache: true
+    state: '{{ debian_full_upgrade_package_state }}'
+
+- name: 'Distro upgrade | remove current disto repos'
+  ansible.builtin.file:
+    path: '/etc/apt/sources.list.d/{{ item }}'
+    state: 'absent'
+  loop: '{{ debian_full_upgrade_core_repos }}'
+
+- name: 'Distro upgrade | set new distro sources'
+  ansible.builtin.apt_repository:
+    repo: '{{ item }}'
+    update_cache: true
+    filename: 'debian_core'
+    state: 'present'
+  loop: '{{ debian_full_upgrade_sources }}'
+
+- name: 'Distro upgrade | upgrade to latest packages'
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: 'Distro upgrade | full upgrade notice'
+  ansible.builtin.debug:
+    msg: 'Upgrading distribution. This may take several minutes ...'
+
+# Currently, there is no way to specify --allow-downgrades
+# --allow-remove-essential --allow-change-held-packages which should provide a
+# completely silent full-upgrade.
+# Reference:
+# * https://github.com/ansible/ansible/issues/65325
+# * https://serverfault.com/questions/48724/100-non-interactive-debian-dist-upgrade
+- name: 'Distro upgrade | upgrade to latest distribution'
+  ansible.builtin.apt:
+    upgrade: 'full'
+    dpkg_options: 'force-confold,force-confdef'
+
+- name: 'Distro upgrade | reboot machine'
+  ansible.builtin.reboot:
+    reboot_timeout: 120
+
+- name: 'Distro upgrade | cleanup'
+  ansible.builtin.apt:
+    update_cache: true
+    autoremove: true
+    purge: true
+
+- name: 'Distro upgrade | post-upgrade notification'
+  ansible.builtin.debug:
+    msg: |
+      Upgrade complete.
+
+      1) Update machine's debian.yml to use new disto repos.
+      2) Update service sources for new distro.
+      3) Verify new services are working.

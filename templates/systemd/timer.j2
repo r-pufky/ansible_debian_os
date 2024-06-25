@@ -1,0 +1,9 @@
+[Unit]
+Description={{ description | default('') }}
+
+[Timer]
+Unit={{ unit | default('') }}
+OnBootSec={{ on_boot_sec | default('') }}
+
+[Install]
+WantedBy={{ wanted_by | default('') }}

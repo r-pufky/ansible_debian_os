@@ -1,0 +1,58 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Automatically reboot system after period of time.
+###############################################################################
+
+# TODO(role): delete when confirmed working.
+# - name: 'Optimizations | reboot | set periodic system reboot'
+#  ansible.builtin.cron:
+#    name: 'r_pufky.srv.debian.debian_optimizations_reboot'
+#    special_time: '{{ debian_optimizations_reboot|default("monthly", true) }}'
+#    user: 'root'
+#    job: "perl -e 'sleep(rand({{ debian_optimizations_reboot_variance }}))'; /sbin/reboot"
+#    cron_file: 'periodic_system_reboot'
+#    state: '{% if debian_optimizations_reboot | length > 0 %}present{% else %}absent{% endif %}'
+
+# TODO(role): if systemd service/timers are used, maybe extract into callable
+#     task instead and call.
+- name: 'Optimizations | auto reboot | set periodic system reboot service'
+  ansible.builtin.template:
+    src: 'systemd/service.j2'
+    dest: '/etc/systemd/system/reboot.service'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  vars:
+    description: 'periodic system reboot service'
+    requires: 'reboot.timer'
+    type: 'simple'
+    exec_start: "perl -e 'sleep(rand({{ debian_optimizations_reboot_variance | ansible.builtin.random(start=0, seed=inventory_hostname) }}))';/sbin/reboot"
+    user: 'root'
+  notify: 'Handlers | reload systemd'
+
+- name: 'Optimizations | auto reboot | set periodic system reboot timer'
+  ansible.builtin.template:
+    src: 'systemd/timer.j2'
+    dest: '/etc/systemd/system/reboot.timer'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  vars:
+    description: 'periodic system reboot timer'
+    unit: 'reboot.service'
+    on_boot_sec: '{{ debian_optimizations_reboot | default("1month") }}'
+    wanted_by: 'timers.target'
+  notify: 'Handlers | reload systemd'
+
+- name: 'Optimizations | auto reboot | set reboot service state'
+  ansible.builtin.service:
+    name: 'reboot.service'
+    enabled: '{% if debian_optimizations_reboot | length == 0 %}false{% else %}true{% endif %}'
+    state: '{% if debian_optimizations_reboot | length == 0 %}stopped{% else %}reloaded{% endif %}'
+
+- name: 'Optimizations | auto reboot | set reboot timer state'
+  ansible.builtin.service:
+    name: 'reboot.timer'
+    enabled: '{% if debian_optimizations_reboot | length == 0 %}false{% else %}true{% endif %}'
+    state: '{% if debian_optimizations_reboot | length == 0 %}stopped{% else %}restarted{% endif %}'

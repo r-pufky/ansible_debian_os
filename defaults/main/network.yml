@@ -1,0 +1,23 @@
+---
+###############################################################################
+# Network Configuration
+###############################################################################
+# WARNING: for Proxmox/LXC containers, the network configuration **must** be
+# set in the LXC container configuration. Changing from DHCP (set in PVE) to
+# static (set in the LXC container) will cause network connection failures.
+
+# Enable IPv6 support via sysctl?
+#
+# SLAAC will block debian boots for up to 5 minutes waiting for a non-existent
+# stateless DHCP v6 server.
+#
+# Default: False.
+#
+# Reference:
+# * https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=947234
+debian_ipv6_enable: false
+
+# Network device definition using /etc/network/interfaces format.
+#
+# Default: '' (un-managed).
+debian_network: ''

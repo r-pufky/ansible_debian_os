@@ -1,0 +1,23 @@
+---
+###############################################################################
+# Configure network interfaces.
+###############################################################################
+# WARNING: for Proxmox/LXC containers, the network configuration **must** be
+# set in the LXC container configuration. Changing from DHCP (set in PVE) to
+# static (set in the LXC container) will cause network connection failures.
+#
+# Setting both network definitions will prefer manual configuration.
+
+# TODO(role): recommend restart networking (systemctl restart networking)
+#     on PVE this is done on reboot; should this apply immediately or on reboot
+#     as an explicit choice (e.g. not potentially changing a system during role
+#     applications).
+- name: 'Network | interfaces | set'
+  ansible.builtin.template:
+    src: 'network/interfaces.j2'
+    dest: '/etc/network/interfaces'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    force: true
+  when: debian_network | length > 0

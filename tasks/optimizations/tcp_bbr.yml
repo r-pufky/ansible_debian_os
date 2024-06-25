@@ -1,0 +1,32 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Use TCP BBR network algorithm if able.
+###############################################################################
+# The Kernel will substitute ipv4.tcp_ for any undefined ipv6.tcp_* value.
+#
+# Reference:
+# * https://cloud.google.com/blog/products/gcp/tcp-bbr-congestion-control-comes-to-gcp-your-internet-just-got-faster
+# * https://gist.github.com/sammdu/668070b486832f47f3b0da2200a7954f
+# * https://wiki.crowncloud.net/?How_to_enable_BBR_on_Debian_12
+
+# Included in Kernel 4.9+; automatically enabled in Debian bookworm.
+# - name: 'Optimizations | TCP BBR | checking TCP BBR Kernel support'
+#   ansible.builtin.shell: "set -o pipefail && grep CONFIG_TCP_CONG_BBR /boot/config-'$(uname -r)' | grep -q CONFIG_TCP_CONG_BBR"
+#   args:
+#     executable: '/bin/bash'
+#   register: _debian_tcp_bbr
+#   failed_when: _debian_tcp_bbr.rc == 2
+#   changed_when: false
+
+# kernel uses ipv4 for any undefined ipv6 tcp_ variables (congestion).
+- name: 'Optimizations | TCP BBR | enable TCP BBR if able'
+  ansible.posix.sysctl:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+    sysctl_file: '/etc/sysctl.d/10-kernel-tcp-bbr.conf'
+    state: 'present'
+  loop:
+    - {name: 'net.core.default_qdisc', value: 'fq'}
+    - {name: 'net.ipv4.tcp_congestion_control', value: 'bbr'}
+  failed_when: false  # kernel namespace not available in containers.

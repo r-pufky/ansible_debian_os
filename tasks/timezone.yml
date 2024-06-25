@@ -1,0 +1,20 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Set Timezone.
+###############################################################################
+# Use fully defined timezones from 'timedatectl list-timezones'. The following
+# error may occur in virtual environments due to the fallback code current in
+# ansible if using aliases (UTC vs. Etc/UTC):
+#
+#  still not desired state, though changes have made - planned: {'name': 'UTC'}, after: {'name': 'Etc/UTC'}
+#
+# Reference:
+# * https://github.com/ansible-collections/community.general/issues/7498
+# * https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html
+# * https://linuxize.com/post/how-to-set-or-change-timezone-on-debian-10/
+
+- name: 'Timezone | set'
+  community.general.timezone:
+    name: '{{ debian_timezone }}'
+  notify: 'Handlers | restart cron'

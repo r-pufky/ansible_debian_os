@@ -1,0 +1,19 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Manage file watch limit for files.
+###############################################################################
+# This only applies to bare-metal or VM's. Containers use host settings.
+#
+# From 0 to 2147483647.
+#
+# Reference:
+# * https://forum.proxmox.com/threads/setting-max_user_watches-on-container-level.54838/
+# * https://github.com/torvalds/linux/commit/92890123749bafc317bbfacbe0a62ce08d78efb7
+
+- name: 'Optimizations | inotify limit | set to {{ debian_optimizations_inotify_limit }}'
+  ansible.posix.sysctl:
+    name: 'fs.inotify.max_user_watches'
+    value: '{{ debian_optimizations_inotify_limit }}'
+    state: 'present'
+  when: ansible_virtualization_role != 'guest'
