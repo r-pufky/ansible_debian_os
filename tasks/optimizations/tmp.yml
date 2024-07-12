@@ -1,0 +1,20 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Use RAM for /tmp via tmpfs.
+###############################################################################
+
+- name: 'Optimizations | /tmp | create in-memory {{ debian_optimizations_tmp_ram }}'
+  ansible.posix.mount:
+    path: '{{ debian_role_tmpfs }}'
+    src: 'tmpfs'
+    fstype: 'tmpfs'
+    opts: 'defaults,size={{ debian_optimizations_tmp_ram }}'
+    state: 'mounted'
+  when: debian_optimizations_tmp_ram|length > 0
+
+- name: 'Optimizations | /tmp | remove in-memory'
+  ansible.posix.mount:
+    path: '{{ debian_role_tmpfs }}'
+    state: 'absent'
+  when: debian_optimizations_tmp_ram|length == 0

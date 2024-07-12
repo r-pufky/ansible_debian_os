@@ -23,3 +23,6 @@ debian_role_unattended_upgrades_packages:
 # Default packages to enable unattended upgrades on AC power.
 debian_role_ac_power_packages:
   - 'powermgmt-base'
+
+# Default tmpfs location.
+debian_role_tmpfs: '/tmp'

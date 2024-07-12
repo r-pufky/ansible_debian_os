@@ -61,6 +61,10 @@
   ansible.builtin.import_tasks: 'optimizations/lockdown_home.yml'
   when: debian_optimizations_lockdown_home
 
+- name: 'Optimizations | tmp'
+  ansible.builtin.import_tasks: 'optimizations/tmp.yml'
+  when: debian_optimizations_tmp_ram
+
 - name: 'GPU passthrough'
   ansible.builtin.import_tasks: 'gpu_passthrough/main.yml'
   when: debian_gpu_passthrough

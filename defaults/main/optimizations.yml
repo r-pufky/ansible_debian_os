@@ -60,3 +60,16 @@ debian_optimizations_reboot: '1month'
 #
 # Default: 300 (seconds).
 debian_optimizations_reboot_variance: 300
+
+###############################################################################
+# File System
+###############################################################################
+# Use RAM (mounted as /tmp via tmpfs) for temporary files.
+#
+# Values:
+#    #: Max size in bytes. 0 removes limit. Uses fstab size suffixes: k, m, g,
+#       Ki, Mi, Gi, etc. A '%' will limit size to a percentage of physical RAM.
+#   '': disable in-memory /tmp (use filesystem).
+#
+# Default: '1%' (1% of system RAM).
+debian_optimizations_tmp_ram: '1%'
