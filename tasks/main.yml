@@ -46,6 +46,7 @@
 
 - name: 'Optimizations | reboot notifications'
   ansible.builtin.import_tasks: 'optimizations/reboot_notifications.yml'
+
 - name: 'Optimizations | auto reboot'
   ansible.builtin.import_tasks: 'optimizations/auto_reboot.yml'
 
@@ -72,18 +73,22 @@
 - name: 'Network | interfaces'
   ansible.builtin.import_tasks: 'network/interfaces.yml'
 
-# TODO(role): Keep this until all dependent roles are migrated to systemd, then
-#     deprecate these tasks (heavily favor systemd) but keep to provide cron
-#     setup for any additional services.
-#
-# Reference:
-# * https://wiki.debian.org/cron
-- name: 'Cron'
-  ansible.builtin.include_tasks: 'cron.yml'
+- name: 'Scheduled jobs | Cron'
+  ansible.builtin.include_tasks: 'scheduled_jobs/cron.yml'
   vars:
     job_name: '{{ item.key }}'
     config: '{{ item.value }}'
   loop: '{{ debian_cron | default({}) | dict2items }}'
+
+- name: 'Scheduled jobs | Systemd'
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.systemd'
+  vars:
+    systemd_services: '{{ debian_systemd_services }}'
+    systemd_timers: '{{ debian_systemd_timers }}'
+  when: >
+    debian_systemd_services | length > 0 or
+    debian_systemd_timers | length > 0
 
 - name: 'Flush handlers'
   ansible.builtin.meta: 'flush_handlers'

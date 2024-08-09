@@ -165,14 +165,7 @@
           - _test_debian_reboot_notification.stat.exists
         fail_msg: '/etc/update-motd.d/98-reboot-required should exist.'
 
-    - name: 'Default | verify | optimizations | gather service status'
-      ansible.builtin.service_facts:
-
-    - name: 'Default | verify | optimizations | assert auto reboot active'
-      ansible.builtin.assert:
-        that:
-          - '"reboot.service" in ansible_facts.services'
-        fail_msg: 'reboot service should be enabled.'
+    # auto_reboot uses r_pufky.srv.systemd.
 
     - name: 'Default | verify | optimizations | query home lockdown'
       ansible.builtin.stat:
@@ -206,9 +199,13 @@
           - _test_debian_skel.files | length == 3
         fail_msg: '/etc/skel/{.bash_logout,.bashrc,.profile} not found.'
 
-## TODO(role): Add GPU passthrough when enabled (and subsequent tests)
-## - ansible.builtin.import_tasks: 'gpu_passthrough/main.yml'
-#   when: debian_gpu_passthrough
+- name: 'Default | verify | GPU passthrough'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | verify | GPU passthrough | disabled'
+      ansible.builtin.debug:
+        msg: 'GPU passthrough testing disabled.'
 
 - name: 'Default | verify | network'
   hosts: 'all'
@@ -251,3 +248,5 @@
         that:
           - _test_debian_cron.files | length == 1  # e2scrub_all only default job
         fail_msg: '/etc/cron.d has additional cron jobs (only e2scrub_all should exist).'
+
+# systemd uses r_pufky.srv.systemd.

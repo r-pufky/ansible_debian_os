@@ -3,11 +3,10 @@
 ###############################################################################
 # Nvidia Guest Passthrough Driver Configuration
 ###############################################################################
+# AMD GPU passthru: https://forum.proxmox.com/threads/amd-gpu-passthrough.139484/
 #
 # Reference:
 # * https://passbe.com/2020/02/19/gpu-nvidia-passthrough-on-proxmox-lxc-container/
-#
-# TODO(role): AMD GPU passthru https://forum.proxmox.com/threads/amd-gpu-passthrough.139484/
 #
 #
 # - name: 'GPU passthrough | nvidia guest | get nvidia driver version'

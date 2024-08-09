@@ -4,8 +4,6 @@
 # Add skeleton files.
 ###############################################################################
 
-# TODO(role): Move files from debian/files (private) to personal configuration.
-
 # TODO(2.19): Deprecation warning removed in ansible 2.19. stdin is **not**
 #     used in the synchronize module and is a spurious warning.
 #

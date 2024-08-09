@@ -15,6 +15,7 @@ provisioner:
   inventory:
     group_vars:
       all:
+        systemd_testing_enable: true
         users_user_test_lockdown:
           name: 'test_lockdown'
           uid: 810

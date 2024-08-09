@@ -1,4 +1,5 @@
 ---
+# TODO(role): migrate internal nvidia/amd passthrough to role and re-enable.
 - name: 'GPU passthrough | NOOP'
   ansible.builtin.debug:
     msg: 'GPU passthrough currently disabled until migrated'

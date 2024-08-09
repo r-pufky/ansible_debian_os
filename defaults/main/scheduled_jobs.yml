@@ -1,0 +1,93 @@
+---
+###############################################################################
+# Scheduled Jobs
+###############################################################################
+# Any scheduled jobs for the system which are not provided by roles.
+#
+# Cronjobs should actively be migrated to systemd timers. Use
+# debian_systemd_services, debian_systemd_timers, or r_pufky.srv.systemd.
+#
+# * https://unix.stackexchange.com/questions/278564/cron-vs-systemd-timers
+# * https://gist.github.com/hkoba/e05c91ebdd4e2ffd1d79e78e76cf1ff5
+# * https://wiki.archlinux.org/title/Systemd/Timers#As_a_cron_replacement
+# * https://opensource.com/article/20/7/systemd-timers
+
+###############################################################################
+# Cron Jobs
+###############################################################################
+# Configuration of cron jobs.
+#
+# Special Case:
+#   special_time: special_time and month,weekday,day,hour,minute settings are
+#                 mutually exclusive. If both are set special_time is used.
+#
+# debian_cron:
+#     dict - cron jobs configuration based on ansible.builtin.cron.
+#   {JOB}:
+#     month: str - month job should run in
+#         Default: '*'.
+#     weekday: str - weekday job should run in
+#         Default: '*'.
+#     day: str - day job should run in
+#         Default: '*'.
+#     hour: str - hour job should run in
+#         Default: '*'.
+#     minute: str - minute job should run in
+#         Default: '*'.
+#     special_time: str - special time specification nickname
+#         Values:
+#           annually: every year (same as yearly)
+#              daily: every day
+#             hourly: every hour
+#            monthly: every month
+#             reboot: every reboot
+#             weekly: every week
+#             yearly: every year
+#         Default: 'weekly'
+#     user: str - execute cronjob as specified user
+#     job: str - commands to execute
+#     state: str - state
+#         Values:
+#           present: create and manage the cronjob
+#           absent: delete the cronjob
+#         Default: 'present'.
+#
+# debian_cron:
+#   cron_present:
+#     special_time: 'daily'
+#     user: 'root'
+#     job: 'echo "cron job named debian_custom_cron_cron_present"'
+#     state: 'present'
+#   cron_job_2:  # expected deletion at final state
+#     month: '*'
+#     weekday: '*'
+#     day: '*'
+#     hour: '*'
+#     minute: '*'
+#     user: 'root'
+#     job: 'echo "another cron job named debian_custom_cron_cron_job_2"'
+#     state: 'present'
+#   cron_absent:
+#     state: 'absent'
+#
+# Default: {}.
+debian_cron: {}
+
+# Disable cron job usage warnings?
+#
+# Creating cronjobs will result in warning messages encouraging active
+# migration to modern job scheduling.
+debian_cron_warning_disable: false
+
+###############################################################################
+# Systemd Units
+###############################################################################
+# Default systemd services installed for debian (see r_pufky.srv.systemd).
+#
+# Default: [].
+debian_systemd_services: []
+
+# Default systemd timers installed for debian (see r_pufky.srv.systemd).
+#
+# Default: [].
+debian_systemd_timers: []

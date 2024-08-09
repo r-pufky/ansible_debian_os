@@ -12,6 +12,10 @@ provisioner:
       callback_whitelist: 'profile_tasks, timer, yaml'
     ssh_connection:
       pipelining: false
+  inventory:
+    group_vars:
+      all:
+        systemd_testing_enable: true
 platforms:
   - name: 'debian-12'
     image: 'ghcr.io/hifis-net/debian-systemd:12'

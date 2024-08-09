@@ -4,4 +4,8 @@ collections:
   # ufw, timezone, locale_gen
   - community.general
 
+  # https://github.com/r-pufky/ansible_collection_srv
+  # users, ssh, systemd
+  - r_pufky.srv
+
 roles: []
