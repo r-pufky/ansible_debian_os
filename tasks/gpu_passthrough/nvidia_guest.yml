@@ -25,10 +25,10 @@
 #   https://in.download.nvidia.com/XFree86/Linux-x86_64/550.54.14/NVIDIA-Linux-x86_64-550.54.14.run
 #
 # - name: 'passthrough | install nvidia driver on instance'  # noqa no-handler conditional
+#   when: _pve_gpu_lxc_binary.changed
 #   ansible.builtin.command: '/root/NVIDIA-Linux-x86_64-{{ debian_gpu_driver }}.run --no-kernel-module --silent'
 #   register: _pve_gpu_lxc_driver
 #   failed_when: _pve_gpu_lxc_driver.rc != 0
-#   when: _pve_gpu_lxc_binary.changed
 #
 # - name: 'passthrough | verify nvidia drivers are loaded'
 #   ansible.builtin.command: 'nvidia-smi'

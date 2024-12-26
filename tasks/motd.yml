@@ -1,20 +1,28 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
-# Display extended uptime reboot notification.
+# Manage MOTD messaging
 ###############################################################################
 
-- name: 'Optimizations | reboot notifications | add extended uptime reboot notification'
+- name: 'MOTD | set'
+  ansible.builtin.copy:
+    dest: '/etc/motd'
+    content: '{{ debian_motd }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    force: true
+
+- name: 'MOTD | add extended uptime reboot notification'
+  when: debian_motd_extended_reboot_warning
   ansible.builtin.template:
     src: '98-reboot-required.j2'
     dest: '/etc/update-motd.d/98-reboot-required'
     owner: 'root'
     group: 'root'
     mode: '0755'
-  when: debian_optimizations_motd_extended_reboot
 
-- name: 'Optimizations | reboot notifications | clear extended uptime reboot notification'
+- name: 'MOTD | clear extended uptime reboot notification'
+  when: not debian_motd_extended_reboot_warning
   ansible.builtin.file:
     path: '/etc/update-motd.d/98-reboot-required'
     state: 'absent'
-  when: not debian_optimizations_motd_extended_reboot

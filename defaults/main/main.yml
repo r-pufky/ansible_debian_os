@@ -29,8 +29,36 @@ debian_default_system_locale: 'en_US.UTF-8'
 debian_timezone: 'Etc/UTC'
 
 ###############################################################################
-# User accounts to configure
+# Optimizations to Base Debian Installation
 ###############################################################################
+# Optimizations are common OS-level changes that are applied fleet wide,
+# regardless of whatever services are running on top of the OS.
+#
+# See tasks for explicit steps if unclear.
+
+# Set MOTD message. Default: '' (disabled).
+debian_motd: ''
+
+# Display additional MOTD login message about excessive uptime (days).
+#
+# Special Case:
+#   0: disable
+#
+# Default: 21 (days).
+debian_motd_extended_reboot_warning: 21
+
+# Set fs.inotify.max_user_watches inotify limit.
+#
+# Only applies to bare-metal or VM's. Containers always use host settings.
+#
+# Values:
+#           -1: disable management (use current/host/default settings)
+#            0: Minimum value
+#      1048576: Default value
+#   2147483647: Maximum value
+#
+# Default: 1048576.
+debian_inotify_limit: 1048576
 
 # Set system skeleton files.
 #
@@ -44,5 +72,37 @@ debian_timezone: 'Etc/UTC'
 # Default: '' (disabled).
 debian_skeleton_files: ''
 
-# Default users installed for debian (see r_pufky.srv.users). Default: [].
-debian_accounts: []
+# Automatically reboot the system after specified amount of uptime.
+#
+# Systems will trigger immediate reboot if they were off for the entire period
+# of time. Uses systemd time formats.
+#
+# Special Case:
+#   '': disable
+#
+# Default: '1month'.
+#
+# Reference:
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html#
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html
+debian_reboot: '1month'
+
+# Variance in seconds before triggering an automatic reboot.
+#
+# Idempotency based on hostname.
+#
+# Default: 300 (seconds).
+debian_reboot_variance: 300
+
+# Lockdown all home directories (remove all group/other perms). Default: True.
+debian_lockdown_home: true
+
+# Define RAM use (mounted as /tmp via tmpfs) for temporary files.
+#
+# Values:
+#    #: Max size in bytes. 0 removes limit. Uses fstab size suffixes: k, m, g,
+#       Ki, Mi, Gi, etc. A '%' will limit size to a percentage of physical RAM.
+#   '': disable limits (will use as much RAM as possible)
+#
+# Default: '1%' (1% of system RAM).
+debian_tmp_ram: '1%'

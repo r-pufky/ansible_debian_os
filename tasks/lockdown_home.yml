@@ -3,13 +3,13 @@
 # Lockdown users home directories.
 ###############################################################################
 
-- name: 'Optimizations | lockdown home | discovering home directories'
+- name: 'Lockdown home | discovering home directories'
   ansible.builtin.command: 'ls -1 /home'
   register: _debian_homedirs
   changed_when: false
 
 # If no user is added, /home is empty and chmod fails.
-- name: 'Optimizations | lockdown home | lockdown /home'
-  ansible.builtin.shell: 'chmod -R go-rwx /home/*'
+- name: 'Lockdown home | lockdown /home'
   when: _debian_homedirs.stdout_lines | length > 0
+  ansible.builtin.shell: 'chmod -R go-rwx /home/*'
   changed_when: false

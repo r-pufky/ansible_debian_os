@@ -7,7 +7,7 @@
 # error may occur in virtual environments due to the fallback code current in
 # ansible if using aliases (UTC vs. Etc/UTC):
 #
-#  still not desired state, though changes have made - planned: {'name': 'UTC'}, after: {'name': 'Etc/UTC'}
+# Force restart cron to ensure cron jobs do not mis-fire based on changes.
 #
 # Reference:
 # * https://github.com/ansible-collections/community.general/issues/7498
@@ -15,6 +15,6 @@
 # * https://linuxize.com/post/how-to-set-or-change-timezone-on-debian-10/
 
 - name: 'Timezone | set'
+  notify: 'Handlers | restart cron'
   community.general.timezone:
     name: '{{ debian_timezone }}'
-  notify: 'Handlers | restart cron'

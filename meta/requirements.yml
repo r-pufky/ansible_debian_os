@@ -1,11 +1,7 @@
 ---
+# yamllint disable rule:line-length
 collections:
-  # https://docs.ansible.com/ansible/latest/collections/community/general/
-  # ufw, timezone, locale_gen
-  - community.general
-
-  # https://github.com/r-pufky/ansible_collection_srv
-  # users, ssh, systemd
-  - r_pufky.srv
+  - 'community.general'  # https://docs.ansible.com/ansible/latest/collections/community/general/
+  - 'r_pufky.srv'  # https://github.com/r-pufky/ansible_collection_srv
 
 roles: []

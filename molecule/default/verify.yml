@@ -1,191 +1,91 @@
 ---
 # yamllint disable rule:line-length
-# Encapsulated roles are just verified to execute without error (tested in that
-# role). Only test new tasks within this role.
-- name: 'Default | verify | apt sources'
+- name: 'Default | verify'
   hosts: 'all'
   gather_facts: false
+  become: true
   tasks:
-    - name: 'Default | verify | apt sources | stat debian-security.sources'
-      ansible.builtin.stat:
-        path: '/etc/apt/sources.list.d/debian-security.sources'
-      register: _test_debian_apt_sources_security
-
-    - name: 'Default | verify | apt sources | stat debian.sources'
-      ansible.builtin.stat:
-        path: '/etc/apt/sources.list.d/debian.sources'
-      register: _test_debian_apt_sources
-
-    - name: 'Default | verify | apt sources | assert modified sources lists'
-      ansible.builtin.assert:
-        that:
-          - _test_debian_apt_sources_security.stat.exists
-          - _test_debian_apt_sources.stat.exists
-        fail_msg: '/etc/apt/sources.list.d/{debian.sources,debian-security.sources} should exist with default options.'
-
-    - name: 'Default | verify | apt sources | assert dist upgrade run via log check'
-      ansible.builtin.lineinfile:
-        path: '/var/log/apt/history.log'
-        regex: 'dist-upgrade'
-        state: 'absent'
-      changed_when: false
+    - name: 'Default | verify | query locales'
+      ansible.builtin.copy:
+        src: 'files/locale'
+        dest: '/etc/default/locale'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
       check_mode: true
-      register: _test_debian_apt_dist_upgrade_run
-      failed_when: _test_debian_apt_dist_upgrade_run.found == 0
+      diff: true
+      register: _test_debian_locales
 
-# Container/vm packages triggered on ansible facts (same logic, not tested).
-- name: 'Default | verify | apt packages'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | apt packages | gather installed packages'
-      ansible.builtin.package_facts:
-
-    - name: 'Default | verify | apt packages | assert packages installed and removed'
+    - name: 'Default | verify | assert correct locales'
       ansible.builtin.assert:
         that:
-          - '"mdadm" not in ansible_facts.packages'
-          - '"vim" in ansible_facts.packages'
-        fail_msg: 'mdadm should be removed. vim should be installed.'
+          - not _test_debian_locales.changed
+        fail_msg: >
+          /etc/default/locale should be using en_US.UTF-8
+          ({{ _test_debian_locales.diff }}).
 
-- name: 'Default | verify | unattended upgrades'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | unattended upgrades | gather installed packages'
-      ansible.builtin.package_facts:
-
-    - name: 'Default | verify | unattended upgrades | gather service status'
-      ansible.builtin.service_facts:
-      register: _test_debian_service
-
-    - name: 'Default | verify | unattended upgrades | stat 20auto-upgrades'
-      ansible.builtin.stat:
-        path: '/etc/apt/apt.conf.d/20auto-upgrades'
-      register: _test_debian_apt_auto_upgrades
-
-    - name: 'Default | verify | unattended upgrades | stat 50unattended-upgrades'
-      ansible.builtin.stat:
-        path: '/etc/apt/apt.conf.d/50unattended-upgrades'
-      register: _test_debian_apt_unattended_upgrades
-
-    - name: 'Default | verify | unattended upgrades | assert packages installed and removed'
-      ansible.builtin.assert:
-        that:
-          - '"apt-listchanges" in ansible_facts.packages'
-          - '"unattended-upgrades" in ansible_facts.packages'
-          - '"apt-config-auto-update" in ansible_facts.packages'
-          - '"powermgmt-base" not in ansible_facts.packages'
-        fail_msg: 'apt-listchanges, unattended-upgrades, apt-config-auto-update should be installed. powermgmt-base should not be installed.'
-
-    - name: 'Default | verify | unattended upgrades | assert configs exist'
-      ansible.builtin.assert:
-        that:
-          - _test_debian_apt_auto_upgrades.stat.exists
-          - _test_debian_apt_unattended_upgrades.stat.exists
-        fail_msg: '/etc/apt/apt.conf.d/{20auto-upgrades,50unattended-upgrades} should exist.'
-
-    - name: 'Default | verify | unattended upgrades | assert services active'
-      ansible.builtin.assert:
-        that:
-          - '"apt-daily.service" in ansible_facts.services'
-          - '"apt-daily-upgrade.service" in ansible_facts.services'
-          - '"unattended-upgrades.service" in ansible_facts.services'
-        fail_msg: 'apt-daily, apt-upgrade, unattended-upgrade services should be enabled.'
-
-    - name: 'Default | verify | unattended upgrades | execute dry run config check'
-      ansible.builtin.command: 'unattended-upgrade --dry-run'
-      register: _test_debian_unattended_upgrade_check
-      changed_when: false
-      failed_when: _test_debian_unattended_upgrade_check.rc != 0
-
-- name: 'Default | verify | locales'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | locales | assert locales set'
-      ansible.builtin.lineinfile:
-        path: '/etc/default/locale'
-        regex: 'en_US.UTF-8'
-        state: 'absent'
-      changed_when: false
+    - name: 'Default | verify | query timezone'
+      ansible.builtin.copy:
+        src: 'files/timezone'
+        dest: '/etc/timezone'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
       check_mode: true
-      register: _test_debian_locale
-      failed_when: _test_debian_locale.found == 0
-
-- name: 'Default | verify | timezone'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | timezone | assert timezone set'
-      ansible.builtin.lineinfile:
-        path: '/etc/timezone'
-        regex: 'Etc/UTC'
-        state: 'absent'
-      changed_when: false
-      check_mode: true
+      diff: true
       register: _test_debian_timezone
-      failed_when: _test_debian_timezone.found == 0
 
-- name: 'Default | verify | optimizations'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | optimizations | assert TCP BBR enabled'
-      ansible.builtin.lineinfile:
-        path: '/etc/sysctl.d/10-kernel-tcp-bbr.conf'
-        regex: 'tcp_congestion_control'
-        state: 'absent'
-      changed_when: false
+    - name: 'Default | verify | assert correct timezone'
+      ansible.builtin.assert:
+        that:
+          - not _test_debian_timezone.changed
+        fail_msg: >
+          /etc/timezone should be using Etc/UTC
+          ({{ _test_debian_timezone.diff }}).
+
+    - name: 'Default | verify | query MOTD'
+      ansible.builtin.copy:
+        content: ''
+        dest: '/etc/motd'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
       check_mode: true
-      register: _test_debian_tcp_bbr
-      failed_when: _test_debian_tcp_bbr.found == 0
-
-    - name: 'Default | verify | optimizations | query MOTD'
-      ansible.builtin.slurp:
-        path: '/etc/motd'
+      diff: true
       register: _test_debian_motd
 
-    - name: 'Default | verify | optimizations | assert MOTD empty'
+    - name: 'Default | verify | assert correct MOTD'
       ansible.builtin.assert:
         that:
-          - _test_debian_motd.content | b64decode == ''
-        fail_msg: '/etc/motd invalid (expected "").'
+          - not _test_debian_motd.changed
+        fail_msg: '/etc/motd should be empty ({{ _test_debian_motd.diff }}).'
 
-    # inotify disabled for guest OS pure ansible task.
 
-    - name: 'Default | verify | optimizations | query reboot notification'
+    - name: 'Default | verify | query MOTD reboot notification'
       ansible.builtin.stat:
         path: '/etc/update-motd.d/98-reboot-required'
       register: _test_debian_reboot_notification
 
-    - name: 'Default | verify | optimizations | assert reboot notification'
+    - name: 'Default | verify | assert MOTD reboot notification'
       ansible.builtin.assert:
         that:
           - _test_debian_reboot_notification.stat.exists
         fail_msg: '/etc/update-motd.d/98-reboot-required should exist.'
 
-    # auto_reboot uses r_pufky.srv.systemd.
+    - name: 'Default | verify | query inotify'
+      ansible.builtin.command: 'sysctl --values fs.inotify.max_user_watches'
+      register: _test_debian_inotify
+      changed_when: false
 
-    - name: 'Default | verify | optimizations | query home lockdown'
-      ansible.builtin.stat:
-        path: '/home/test_lockdown/.bashrc'
-      register: _test_debian_lockdown
-
-    - name: 'Default | verify | optimizations | assert home lockdown'
+    - name: 'Default | verify | assert inotify set'
       ansible.builtin.assert:
         that:
-          - _test_debian_lockdown.stat.exists
-          - _test_debian_lockdown.stat.gr_name == 'test_lockdown'
-          - _test_debian_lockdown.stat.pw_name == 'test_lockdown'
-          - _test_debian_lockdown.stat.mode == '0600'
-        fail_msg: '/home not locked down. Expected(D: go-rwx, F: go-rwx).'
+          - _test_debian_inotify.stdout | int == 1048576
+        fail_msg: >
+          sysctl should report fs.inotify.max_user_watches=1048576
+          ({{ _test_debian_inotify.stdout }}).
 
-- name: 'Default | verify | skeleton files'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | skeleton files | query default skel files'
+    - name: 'Default | verify | query skeleton files'
       ansible.builtin.find:
         paths: '/etc/skel'
         recurse: false
@@ -193,60 +93,68 @@
         file_type: 'file'
       register: _test_debian_skel
 
-    - name: 'Default | verify | skeleton files | assert default skel files'
+    - name: 'Default | verify | assert default skeleton files'
       ansible.builtin.assert:
         that:
           - _test_debian_skel.files | length == 3
         fail_msg: '/etc/skel/{.bash_logout,.bashrc,.profile} not found.'
 
-- name: 'Default | verify | GPU passthrough'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | GPU passthrough | disabled'
-      ansible.builtin.debug:
-        msg: 'GPU passthrough testing disabled.'
-
-- name: 'Default | verify | network'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | network | assert IPv6 disabled'
-      ansible.builtin.lineinfile:
-        path: '/etc/sysctl.conf'
-        regex: 'net.ipv6.conf.all.disable_ipv6=1'
-        state: 'absent'
-      changed_when: false
+    # auto_reboot uses r_pufky.srv.systemd. Confirm both files exist and test
+    # static reboot.timer for correctness.
+    - name: 'Default | verify | query expected reboot.timer'
+      ansible.builtin.copy:
+        src: 'files/reboot.timer'
+        dest: '/etc/systemd/system/reboot.timer'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
       check_mode: true
-      register: _test_debian_tcp_bbr
-      failed_when: _test_debian_tcp_bbr.found == 0
+      diff: true
+      register: _test_debian_auto_reboot_timer
 
-    - name: 'Default | verify | network | query /etc/network/interfaces'
+    - name: 'Default | verify | assert expected reboot.timer'
+      ansible.builtin.assert:
+        that:
+          - not _test_debian_auto_reboot_timer.changed
+        fail_msg: >
+          /etc/systemd/system/reboot.timer is not in expected format:
+          {{ _test_debian_auto_reboot_timer.diff }}.
+
+    - name: 'Default | verify | query reboot.service'
       ansible.builtin.stat:
-        path: '/etc/network/interfaces'
-      register: _test_debian_network_interfaces
+        path: '/etc/systemd/system/reboot.service'
+      register: _test_debian_auto_reboot_service
 
-    - name: 'Default | verify | network | assert interfaces not configured'
+    - name: 'Default | verify | assert reboot.service'
       ansible.builtin.assert:
         that:
-          - not _test_debian_network_interfaces.stat.exists
-        fail_msg: '/etc/network/interfaces should not exist (not configured).'
+          - _test_debian_auto_reboot_service.stat.exists
+        fail_msg: /etc/systemd/system/reboot.service does not exist.
 
-- name: 'Default | verify | cron'
-  hosts: 'all'
-  gather_facts: false
-  tasks:
-    - name: 'Default | verify | cron | query system cron jobs'
-      ansible.builtin.find:
-        paths: '/etc/cron.d'
-        file_type: 'file'
-      changed_when: false
-      register: _test_debian_cron
+    # Vagrant user automatically create for VMs; check that is locked down.
+    - name: 'Default | verify | query home lockdown'
+      ansible.builtin.stat:
+        path: '/home/vagrant/.bashrc'
+      register: _test_debian_lockdown
 
-    - name: 'Default | verify | cron | assert no cron jobs'
+    - name: 'Default | verify | assert home lockdown'
       ansible.builtin.assert:
         that:
-          - _test_debian_cron.files | length == 1  # e2scrub_all only default job
-        fail_msg: '/etc/cron.d has additional cron jobs (only e2scrub_all should exist).'
+          - _test_debian_lockdown.stat.exists
+          - _test_debian_lockdown.stat.gr_name == 'vagrant'
+          - _test_debian_lockdown.stat.pw_name == 'vagrant'
+          - _test_debian_lockdown.stat.mode == '0600'
+        fail_msg: '/home not locked down. Expected (D: go-rwx, F: go-rwx).'
 
-# systemd uses r_pufky.srv.systemd.
+    - name: 'Default | verify | query expected /etc/fstab'
+      ansible.builtin.slurp:
+        path: '/etc/fstab'
+      register: _test_debian_tmp
+
+    - name: 'Default | verify | assert expected fstab'
+      ansible.builtin.assert:
+        that:
+          - '"tmpfs /tmp tmpfs defaults,size=1% 0 0" in _test_debian_tmp.content | b64decode'
+        fail_msg: >
+          /etc/fstab should have 'tmpfs /tmp tmpfs defaults,size=1% 0 0' but
+          does not: {{ _test_debian_tmp.content | b64decode }}.

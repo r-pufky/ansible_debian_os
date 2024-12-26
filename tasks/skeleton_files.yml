@@ -4,11 +4,6 @@
 # Add skeleton files.
 ###############################################################################
 
-# TODO(2.19): Deprecation warning removed in ansible 2.19. stdin is **not**
-#     used in the synchronize module and is a spurious warning.
-#
-# Reference:
-# * https://github.com/ansible-collections/ansible.posix/pull/421
 - name: 'Skeleton files | copy files'
   ansible.posix.synchronize:
     src: '{{ debian_skeleton_files }}'
@@ -20,9 +15,9 @@
   register: _debian_skel
 
 - name: 'Skeleton files | set file permissions'  # noqa: no-handler execute immediately for new users to pull skel files correctly
+  when: _debian_skel.changed
   ansible.builtin.shell: |
     chown -R root:root /etc/skel &&
     find /etc/skel -type d -exec chmod 0755 {} \; &&
     find /etc/skel -type f -exec chmod 0644 {} \;
   changed_when: false
-  when: _debian_skel.changed

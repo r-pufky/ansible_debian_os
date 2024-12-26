@@ -1,94 +1,39 @@
 ---
-- name: 'Apt | sources'
-  ansible.builtin.import_tasks: 'apt/sources.yml'
-- name: 'Apt | packages'
-  ansible.builtin.import_tasks: 'apt/packages.yml'
-- name: 'Apt | unattended'
-  ansible.builtin.import_tasks: 'apt/unattended.yml'
-
-- name: 'SSH'
+- name: 'Install packages'
+  when: debian_role_packages | length > 0
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.ssh'
+    name: 'r_pufky.srv.apt'
+  vars:
+    apt_packages: '{{ debian_role_packages }}'
+    apt_package_update_cache: true
 
 - name: 'Locales'
   ansible.builtin.import_tasks: 'locales.yml'
 - name: 'Timezone'
   ansible.builtin.import_tasks: 'timezone.yml'
-- name: 'Optimizations | TCP BBR'
-  ansible.builtin.import_tasks: 'optimizations/tcp_bbr.yml'
-  when: debian_optimizations_tcp_bbr_enable
 
-- name: 'Network | IPv6'
-  ansible.builtin.import_tasks: 'network/ip_v6.yml'
+- name: 'MOTD'
+  ansible.builtin.import_tasks: 'motd.yml'
 
-- name: 'UFW'
-  ansible.builtin.import_role:
-    name: 'r_pufky.srv.ufw'
-
-- name: 'Optimizations | MOTD'
-  ansible.builtin.import_tasks: 'optimizations/motd.yml'
-
-- name: 'Logrotate'
-  ansible.builtin.include_role:
-    name: 'r_pufky.srv.logrotate'
-
-- name: 'Journald'
-  ansible.builtin.include_role:
-    name: 'r_pufky.srv.journald'
-
-- name: 'Optimizations | inotify limit'
-  ansible.builtin.import_tasks: 'optimizations/inotify_limit.yml'
-  when: debian_optimizations_inotify_limit >= 0
+- name: 'Inotify limit'
+  when: debian_inotify_limit >= 0
+  ansible.builtin.import_tasks: 'inotify_limit.yml'
 
 - name: 'Skeleton files'
-  ansible.builtin.import_tasks: 'skeleton_files.yml'
   when: debian_skeleton_files | length > 0
+  ansible.builtin.import_tasks: 'skeleton_files.yml'
 
-- name: 'Optimizations | reboot notifications'
-  ansible.builtin.import_tasks: 'optimizations/reboot_notifications.yml'
+- name: 'Auto reboot'
+  ansible.builtin.import_tasks: 'auto_reboot.yml'
 
-- name: 'Optimizations | auto reboot'
-  ansible.builtin.import_tasks: 'optimizations/auto_reboot.yml'
+- name: 'Lockdown home'
+  when: debian_lockdown_home
+  ansible.builtin.import_tasks: 'lockdown_home.yml'
 
-- name: 'Accounts'
-  ansible.builtin.include_role:
-    name: 'r_pufky.srv.users'
-    tasks_from: 'user.yml'
-  loop: '{{ debian_accounts | default([]) }}'
-  loop_control:
-    loop_var: user
+- name: '/tmp'
+  when: debian_tmp_ram
+  ansible.builtin.import_tasks: 'tmp.yml'
 
-- name: 'Optimizations | lockdown home'
-  ansible.builtin.import_tasks: 'optimizations/lockdown_home.yml'
-  when: debian_optimizations_lockdown_home
-
-- name: 'Optimizations | tmp'
-  ansible.builtin.import_tasks: 'optimizations/tmp.yml'
-  when: debian_optimizations_tmp_ram
-
-- name: 'GPU passthrough'
-  ansible.builtin.import_tasks: 'gpu_passthrough/main.yml'
-  when: debian_gpu_passthrough
-
-- name: 'Network | interfaces'
-  ansible.builtin.import_tasks: 'network/interfaces.yml'
-
-- name: 'Scheduled jobs | Cron'
-  ansible.builtin.include_tasks: 'scheduled_jobs/cron.yml'
-  vars:
-    job_name: '{{ item.key }}'
-    config: '{{ item.value }}'
-  loop: '{{ debian_cron | default({}) | dict2items }}'
-
-- name: 'Scheduled jobs | Systemd'
-  ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
-  vars:
-    systemd_services: '{{ debian_systemd_services }}'
-    systemd_timers: '{{ debian_systemd_timers }}'
-  when: >
-    debian_systemd_services | length > 0 or
-    debian_systemd_timers | length > 0
-
+# Force cron restart for timezone changes
 - name: 'Flush handlers'
   ansible.builtin.meta: 'flush_handlers'

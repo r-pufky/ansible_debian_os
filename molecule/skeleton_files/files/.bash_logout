@@ -1,1 +1,0 @@
-echo 'test skel .bash_logout'

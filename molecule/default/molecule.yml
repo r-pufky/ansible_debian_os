@@ -1,40 +1,49 @@
 ---
-# yamllint disable rule:line-length
+# Use a VM to test kernel namespace changes, tmpfs changes; and validate all
+# default options are set correctly.
 dependency:
   name: 'galaxy'
 driver:
-  name: 'podman'
+  name: 'vagrant'
+  provider:
+    name: 'virtualbox'
+    config_options:
+      ssh.keep_alive: true
+      ssh.remote_user: 'root'
+    options:
+      append_platform_to_hostname: false
 provisioner:
   name: 'ansible'
   config_options:
     defaults:
-      interpreter_python: 'auto_silent'
-      callback_whitelist: 'profile_tasks, timer, yaml'
-    ssh_connection:
-      pipelining: false
-  inventory:
-    group_vars:
-      all:
-        systemd_testing_enable: true
-        users_user_test_lockdown:
-          name: 'test_lockdown'
-          uid: 810
-        debian_accounts:
-          - 'test_lockdown'
+      interpreter_python: 'auto_silent'  # suppress warnings
+      callback_whitelist: 'profile_tasks, timer, yaml'  # output profiling info
 platforms:
-  - name: 'debian-12'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
-    systemd: 'always'
-    volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    capabilities:
-      - 'SYS_ADMIN'
-    command: '/lib/systemd/systemd'
-    pre_build_image: true
-    privileged: true  # sysctl, ulimit
+  - name: 'debian-debian-12-vm-default'
+    box: 'debian/bookworm64'
+    memory: 4096
+    cpus: 2
+    interfaces:
+      - network_name: private_network  # network_name required
+        auto_config: true
+        type: 'dhcp'
 verifier:
   name: 'ansible'
 lint: |
   set -e
   yamllint .
   ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    # - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # services created one time.
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

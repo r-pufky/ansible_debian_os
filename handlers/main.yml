@@ -1,17 +1,7 @@
 ---
 ###############################################################################
-# Debian Handlers
+# Cron Handlers
 ###############################################################################
-
-- name: 'Handlers | restart unattended-upgrades'
-  ansible.builtin.service:
-    name: 'unattended-upgrades'
-    state: 'restarted'
-    enabled: true
-
-- name: 'Handlers | reload systemd'
-  ansible.builtin.systemd_service:
-    daemon_reload: true
 
 - name: 'Handlers | restart cron'
   ansible.builtin.service:

@@ -1,0 +1,9 @@
+[Unit]
+Description=periodic system reboot timer
+
+[Timer]
+OnBootSec=1month
+Unit=reboot.service
+
+[Install]
+WantedBy=timers.target

@@ -21,6 +21,7 @@
 # * https://wiki.debian.org/NvidiaGraphicsDrivers
 #
 # - name: 'GPU passthrough | nvidia host | add GPU passthrough repositories'
+#   when: pve_nvidia_passthrough
 #   block:
 #     - name: 'GPU passthrough | nvidia host | add non-free (for GPU passthrough support) repo'
 #       ansible.builtin.apt_repository:
@@ -42,7 +43,6 @@
 #         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }} main contrib'
 #         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }}-updates main contrib'
 #         - 'deb http://security.debian.org {{ pve_debian_base }}-security main contrib'
-#   when: pve_nvidia_passthrough
 #
 # - name: 'GPU passthrough | nvidia host | install pve headers'
 #   ansible.builtin.apt:
@@ -88,6 +88,7 @@
 #
 #
 # - name: 'GPU passthrough | nvidia host | install nvidia drivers'
+#   when: pve_debian_base|length == 0
 #   ansible.builtin.apt:
 #     name:
 #       - 'nvidia-driver={{ pve_nvidia_driver }}*'
@@ -95,7 +96,6 @@
 #     update_cache: true
 #     state: 'present'
 #   register: _pve_gpu_host_driver
-#   when: pve_debian_base|length == 0
 #
 # - name: 'GPU passthrough | nvidia host | enable nvidia drivers on boot'
 #   ansible.builtin.copy:
@@ -118,12 +118,12 @@
 #   register: _pve_gpu_host_udev
 #
 # - name: 'GPU passthrough | nvidia host | rebooting to enable host-passthrough' # noqa no-handler execute immediately
-#   ansible.builtin.reboot:
-#     reboot_timeout: 3600
 #   when: >
 #     _pve_gpu_host_driver.changed or
 #     _pve_gpu_host_modules.changed or
 #     _pve_gpu_host_udev.changed
+#   ansible.builtin.reboot:
+#     reboot_timeout: 3600
 #
 # - name: 'GPU passthrough | nvidia host | verify nvidia drivers are loaded'
 #   ansible.builtin.command: 'nvidia-smi'
