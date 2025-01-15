@@ -15,6 +15,8 @@
   vars:
     systemd_services:
       - name: 'reboot'
+        state: 'present'
+        override: false
         unit:
           description: 'periodic system reboot service'
           requires: ['reboot.timer']
@@ -23,9 +25,10 @@
           exec_start: ['/usr/bin/systemctl --force reboot --when={{ debian_reboot_variance | ansible.builtin.random(start=0, seed=inventory_hostname) }}s']
         exec:
           user: 'root'
-        state: 'present'
     systemd_timers:
       - name: 'reboot'
+        state: 'present'
+        override: false
         unit:
           description: 'periodic system reboot timer'
         timer:
@@ -33,7 +36,6 @@
           on_boot_sec: '{{ debian_reboot | default("1month") }}'
         install:
           wanted_by: ['timers.target']
-        state: 'present'
 
 - name: 'Auto reboot | disable reboot timer service'
   when: debian_reboot | length == 0
@@ -43,6 +45,8 @@
     systemd_services:
       - name: 'reboot'
         state: 'absent'
+        override: false
     systemd_timers:
       - name: 'reboot'
         state: 'absent'
+        override: false
