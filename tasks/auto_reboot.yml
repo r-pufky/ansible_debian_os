@@ -16,7 +16,7 @@
     systemd_services:
       - name: 'reboot'
         state: 'present'
-        override: false
+        drop_in: false
         unit:
           description: 'periodic system reboot service'
           requires: ['reboot.timer']
@@ -28,7 +28,7 @@
     systemd_timers:
       - name: 'reboot'
         state: 'present'
-        override: false
+        drop_in: false
         unit:
           description: 'periodic system reboot timer'
         timer:
@@ -45,8 +45,8 @@
     systemd_services:
       - name: 'reboot'
         state: 'absent'
-        override: false
+        drop_in: false
     systemd_timers:
       - name: 'reboot'
         state: 'absent'
-        override: false
+        drop_in: false
