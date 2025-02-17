@@ -42,20 +42,21 @@ debian_motd: ''
 # Display additional MOTD login message about excessive uptime (days).
 #
 # Special Case:
-#   0: disable
+#   0: disable.
 #
 # Default: 21 (days).
 debian_motd_extended_reboot_warning: 21
 
 # Set fs.inotify.max_user_watches inotify limit.
 #
-# Only applies to bare-metal or VM's. Containers always use host settings.
+# Special Case:
+#   * Containers should always use -1.
 #
 # Values:
-#           -1: disable management (use current/host/default settings)
-#            0: Minimum value
-#      1048576: Default value
-#   2147483647: Maximum value
+#           -1: disable management (use current/host/default settings).
+#            0: Minimum value.
+#      1048576: Default value.
+#   2147483647: Maximum value.
 #
 # Default: 1048576.
 debian_inotify_limit: 1048576
@@ -78,7 +79,7 @@ debian_skeleton_files: ''
 # of time. Uses systemd time formats.
 #
 # Special Case:
-#   '': disable
+#   '': disable.
 #
 # Default: '1month'.
 #
@@ -102,7 +103,7 @@ debian_lockdown_home: true
 # Values:
 #    #: Max size in bytes. 0 removes limit. Uses fstab size suffixes: k, m, g,
 #       Ki, Mi, Gi, etc. A '%' will limit size to a percentage of physical RAM.
-#   '': disable limits (will use as much RAM as possible)
+#   '': disable limits (will use as much RAM as possible).
 #
 # Default: '1%' (1% of system RAM).
 debian_tmp_ram: '1%'
