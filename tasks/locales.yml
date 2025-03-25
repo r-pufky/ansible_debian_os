@@ -3,7 +3,6 @@
 ###############################################################################
 # Ensure locales are created.
 ###############################################################################
-#
 # Reference:
 # * https://en.wikipedia.org/wiki/Locale_(computer_software)
 # * https://askubuntu.com/questions/162391/how-do-i-fix-my-locale-issue

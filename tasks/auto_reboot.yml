@@ -3,7 +3,6 @@
 ###############################################################################
 # Automatically reboot system after period of time.
 ###############################################################################
-#
 # Reference:
 # * https://gist.github.com/hkoba/e05c91ebdd4e2ffd1d79e78e76cf1ff5
 # * https://opensource.com/article/20/7/systemd-timers

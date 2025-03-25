@@ -3,7 +3,6 @@
 ###############################################################################
 # Nvidia Guest Passthrough Driver Configuration
 ###############################################################################
-#
 # Reference:
 # * https://passbe.com/2020/02/19/gpu-nvidia-passthrough-on-proxmox-lxc-container/
 #
