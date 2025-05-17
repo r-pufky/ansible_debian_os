@@ -7,12 +7,13 @@
 # * https://en.wikipedia.org/wiki/Locale_(computer_software)
 # * https://askubuntu.com/questions/162391/how-do-i-fix-my-locale-issue
 # * https://serverfault.com/questions/959026/how-do-i-generate-and-set-the-locale-using-ansible
+# yamllint enable rule:line-length
 
 - name: 'Locales | install locales'
   community.general.locale_gen:
     name: '{{ item }}'
     state: 'present'
-  loop: '{{ debian_locales }}'
+  loop: '{{ os_locales }}'
 
 - name: 'Locales | set system default locale'
   ansible.builtin.template:

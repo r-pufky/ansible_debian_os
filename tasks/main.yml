@@ -1,10 +1,10 @@
 ---
 - name: 'Install packages'
-  when: debian_role_packages | length > 0
+  when: os_role_packages | length > 0
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.apt'
+    name: 'r_pufky.deb.apt'
   vars:
-    apt_packages: '{{ debian_role_packages }}'
+    apt_packages: '{{ os_role_packages }}'
     apt_package_update_cache: true
 
 - name: 'Locales'
@@ -16,22 +16,22 @@
   ansible.builtin.import_tasks: 'motd.yml'
 
 - name: 'Inotify limit'
-  when: debian_inotify_limit >= 0
+  when: os_inotify_limit >= 0
   ansible.builtin.import_tasks: 'inotify_limit.yml'
 
 - name: 'Skeleton files'
-  when: debian_skeleton_files | length > 0
+  when: os_skeleton_files | length > 0
   ansible.builtin.import_tasks: 'skeleton_files.yml'
 
 - name: 'Auto reboot'
   ansible.builtin.import_tasks: 'auto_reboot.yml'
 
 - name: 'Lockdown home'
-  when: debian_lockdown_home
+  when: os_lockdown_home
   ansible.builtin.import_tasks: 'lockdown_home.yml'
 
 - name: '/tmp'
-  when: debian_tmp_ram
+  when: os_tmp_ram
   ansible.builtin.import_tasks: 'tmp.yml'
 
 # Force cron restart for timezone changes

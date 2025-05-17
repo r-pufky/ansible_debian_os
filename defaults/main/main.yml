@@ -2,7 +2,8 @@
 ###############################################################################
 # Debian Role Configuration
 ###############################################################################
-# Fleetwide base OS configuration.
+# Base OS configuration. Common OS level configuration that does not warrant a
+# separate role.
 
 ###############################################################################
 # Locales
@@ -11,11 +12,11 @@
 # * https://en.wikipedia.org/wiki/Locale_(computer_software)
 
 # List of locales to install. Default: ['en_US.UTF-8'].
-debian_locales:
+os_locales:
   - 'en_US.UTF-8'
 
 # System default locale. Default: 'en_US.UTF-8'.
-debian_default_system_locale: 'en_US.UTF-8'
+os_default_system_locale: 'en_US.UTF-8'
 
 ###############################################################################
 # Timezones
@@ -25,7 +26,7 @@ debian_default_system_locale: 'en_US.UTF-8'
 # Uses values from 'timedatectl list-timezones'.
 #
 # Default: 'Etc/UTC'.
-debian_timezone: 'Etc/UTC'
+os_timezone: 'Etc/UTC'
 
 ###############################################################################
 # Optimizations to Base Debian Installation
@@ -36,7 +37,7 @@ debian_timezone: 'Etc/UTC'
 # See tasks for explicit steps if unclear.
 
 # Set MOTD message. Default: '' (disabled).
-debian_motd: ''
+os_motd: ''
 
 # Display additional MOTD login message about excessive uptime (days).
 #
@@ -44,7 +45,7 @@ debian_motd: ''
 #   0: disable.
 #
 # Default: 21 (days).
-debian_motd_extended_reboot_warning: 21
+os_motd_extended_reboot_warning: 21
 
 # Set fs.inotify.max_user_watches inotify limit.
 #
@@ -58,7 +59,7 @@ debian_motd_extended_reboot_warning: 21
 #   2147483647: Maximum value.
 #
 # Default: 1048576.
-debian_inotify_limit: 1048576
+os_inotify_limit: 1048576
 
 # Set system skeleton files.
 #
@@ -66,11 +67,11 @@ debian_inotify_limit: 1048576
 # skeleton files in /etc/skel setting appropriate permissions. Skeleton files
 # are sync'ed before user accounts are modified.
 #
-# debian_skeleton_files: 'group_vars/all/debian/skel'
-# debian_skeleton_files: 'host_vars/custom_skel.example.com/files/skel'
+# os_skeleton_files: 'group_vars/all/debian/skel'
+# os_skeleton_files: 'host_vars/custom_skel.example.com/files/skel'
 #
 # Default: '' (disabled).
-debian_skeleton_files: ''
+os_skeleton_files: ''
 
 # Automatically reboot the system after specified amount of uptime.
 #
@@ -85,17 +86,17 @@ debian_skeleton_files: ''
 # Reference:
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html#
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html
-debian_reboot: '1month'
+os_reboot: '1month'
 
 # Variance in seconds before triggering an automatic reboot.
 #
 # Idempotency based on hostname.
 #
 # Default: 300 (seconds).
-debian_reboot_variance: 300
+os_reboot_variance: 300
 
 # Lockdown all home directories (remove all group/other perms). Default: True.
-debian_lockdown_home: true
+os_lockdown_home: true
 
 # Define RAM use (mounted as /tmp via tmpfs) for temporary files.
 #
@@ -105,4 +106,4 @@ debian_lockdown_home: true
 #   '': disable limits (will use as much RAM as possible).
 #
 # Default: '1%' (1% of system RAM).
-debian_tmp_ram: '1%'
+os_tmp_ram: '1%'

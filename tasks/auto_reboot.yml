@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Automatically reboot system after period of time.
 ###############################################################################
@@ -8,9 +7,9 @@
 # * https://opensource.com/article/20/7/systemd-timers
 
 - name: 'Auto reboot | create reboot timer service'
-  when: debian_reboot | length > 0
+  when: os_reboot | length > 0
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
+    name: 'r_pufky.deb.systemd'
   vars:
     systemd_services:
       - name: 'reboot'
@@ -21,7 +20,14 @@
           requires: ['reboot.timer']
         service:
           type: 'simple'
-          exec_start: ['/usr/bin/systemctl --force reboot --when={{ debian_reboot_variance | ansible.builtin.random(start=0, seed=inventory_hostname) }}s']
+          exec_start:
+            - >-
+              /usr/bin/systemctl
+              --force reboot
+              --when={{
+                  os_reboot_variance |
+                  ansible.builtin.random(start=0, seed=inventory_hostname)
+                }}s
         exec:
           user: 'root'
     systemd_timers:
@@ -32,14 +38,14 @@
           description: 'periodic system reboot timer'
         timer:
           unit: 'reboot.service'
-          on_boot_sec: '{{ debian_reboot | default("1month") }}'
+          on_boot_sec: '{{ os_reboot | default("1month") }}'
         install:
           wanted_by: ['timers.target']
 
 - name: 'Auto reboot | disable reboot timer service'
-  when: debian_reboot | length == 0
+  when: os_reboot | length == 0
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
+    name: 'r_pufky.deb.systemd'
   vars:
     systemd_services:
       - name: 'reboot'

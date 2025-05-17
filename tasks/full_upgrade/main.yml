@@ -12,23 +12,23 @@
 #
 # default to migrate to new role.
 #
-# debian_full_upgrade_sources:
-#   - see debian_apt_sources
+# os_full_upgrade_sources:
+#   - see os_apt_sources
 #
-# debian_full_upgrade_core_repos:
+# os_full_upgrade_core_repos:
 #   - 'debian.sources'
 #
 # If backports, pins or non-standard apt repositories are found, should these
 # be ignored and upgrade continued? (in almost ALL cases, these should be
 # DISABLED, distribution upgrade, then re-enabled with new distro custom
 # sources as needed.)
-# debian_full_upgrade_force_apt: false
+# os_full_upgrade_force_apt: false
 #
 # If backports, pins or non-standard apt repositories are found, should these
 # automatically removed so upgrade can continue?
-# debian_full_upgrade_force_remove_apt: false
+# os_full_upgrade_force_remove_apt: false
 #
-# debian_full_upgrade_package_state: 'latest'
+# os_full_upgrade_package_state: 'latest'
 
 - name: 'Full upgrade | NOOP'
   ansible.builtin.debug:
@@ -50,21 +50,21 @@
 #   ansible.builtin.find:
 #     paths: '/etc/apt/sources.list.d'
 #     file_type: 'any'
-#     exclude: '{{ debian_full_upgrade_core_repos }}'
+#     exclude: '{{ os_full_upgrade_core_repos }}'
 #     recurse: true
-#   register: _debian_apt_sources
+#   register: _os_apt_sources
 #
 # - name: 'Distro upgrade | non-standard apt repositories (abort)'
 #   when: >
-#     _debian_apt_sources.files | length > 0 and
-#     (not debian_full_upgrade_force_apt and not debian_full_upgrade_force_remove_apt)
+#     _os_apt_sources.files | length > 0 and
+#     (not os_full_upgrade_force_apt and not os_full_upgrade_force_remove_apt)
 #   ansible.builtin.fail:
 #     msg: |
 #       Backports, Pins, and custom repositories should be disabled before
 #       upgrading.
 #
 #       Detected repositories
-#       {% for repo in _debian_apt_sources.files %}
+#       {% for repo in _os_apt_sources.files %}
 #       {{ repo.path }}
 #       {% endfor %}
 #
@@ -72,37 +72,37 @@
 #
 #       To disable this check and proceed anyway, set either based on preference
 #
-#         debian_full_upgrade_force_apt
-#         debian_full_upgrade_force_remove_apt
+#         os_full_upgrade_force_apt
+#         os_full_upgrade_force_remove_apt
 #
-#         --extra-vars 'debian_full_upgrade_force_remove_apt=true'
+#         --extra-vars 'os_full_upgrade_force_remove_apt=true'
 #
 # - name: 'Distro upgrade | force remove non-standard repos'
-#   when: debian_full_upgrade_force_remove_apt
+#   when: os_full_upgrade_force_remove_apt
 #   ansible.builtin.file:
 #     path: '{{ item.path }}'
 #     state: 'absent'
-#   loop: '{{ _debian_apt_sources.files }}'
+#   loop: '{{ _os_apt_sources.files }}'
 #
 # - name: 'Distro upgrade | upgrade to latest packages'
 #   ansible.builtin.apt:
 #     name: '*'
 #     update_cache: true
-#     state: '{{ debian_full_upgrade_package_state }}'
+#     state: '{{ os_full_upgrade_package_state }}'
 #
 # - name: 'Distro upgrade | remove current disto repos'
 #   ansible.builtin.file:
 #     path: '/etc/apt/sources.list.d/{{ item }}'
 #     state: 'absent'
-#   loop: '{{ debian_full_upgrade_core_repos }}'
+#   loop: '{{ os_full_upgrade_core_repos }}'
 #
 # - name: 'Distro upgrade | set new distro sources'
 #   ansible.builtin.apt_repository:
 #     repo: '{{ item }}'
 #     update_cache: true
-#     filename: 'debian_core'
+#     filename: 'os_core'
 #     state: 'present'
-#   loop: '{{ debian_full_upgrade_sources }}'
+#   loop: '{{ os_full_upgrade_sources }}'
 #
 # - name: 'Distro upgrade | upgrade to latest packages'
 #   ansible.builtin.apt:

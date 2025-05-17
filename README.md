@@ -4,14 +4,12 @@ Base debian OS configuration.
 ## Requirements
 [supported platforms](https://github.com/r-pufky/ansible_debian/blob/main/meta/main.yml)
 
-[collections/roles](https://github.com/r-pufky/ansible_debian/blob/main/meta/requirements.yml)
-
 ## Role Variables
 [defaults](https://github.com/r-pufky/ansible_debian/blob/main/defaults/main)
 
 ## Dependencies
-Part of the [r_pufky.srv](https://github.com/r-pufky/ansible_collection_srv)
-collection.
+**galaxy-ng** roles cannot be used independently. Part of
+[r_pufky.deb](https://github.com/r-pufky/ansible_collection_deb) collection.
 
 ## Example Playbook
 Apply base OS configuration optimizations to a Debian instance. These are
@@ -24,28 +22,28 @@ defaults for all default values.
 
 group_vars/all/vars/debian.yml
 ``` yaml
-debian_locales:
+os_locales:
   - 'en_US.UTF-8'
-debian_default_system_locale: 'en_US.UTF-8'
-debian_timezone: 'Etc/UTC'
-debian_motd: ''
-debian_motd_extended_reboot_warning: 21
-debian_inotify_limit: 1048576
-debian_skeleton_files: 'group_vars/all/debian/skel'
-debian_reboot: '1month'
-debian_lockdown_home: true
-debian_tmp_ram: '1%'
+os_default_system_locale: 'en_US.UTF-8'
+os_timezone: 'Etc/UTC'
+os_motd: ''
+os_motd_extended_reboot_warning: 21
+os_inotify_limit: 1048576
+os_skeleton_files: 'group_vars/all/debian/skel'
+os_reboot: '1month'
+os_lockdown_home: true
+os_tmp_ram: '1%'
 ```
 
 Apply the base role
 ``` yaml
 - name: 'Apply base configuration'
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.debian'
+    name: 'r_pufky.deb.os'
 ```
 
 ## Development
-Configure [environment](https://github.com/r-pufky/ansible_collection_srv/blob/main/docs/dev/environment/README.md)
+Configure [environment](https://github.com/r-pufky/ansible_collection_docs/blob/main/dev/environment/README.md)
 
 Run all unit tests:
 ``` bash

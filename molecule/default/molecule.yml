@@ -1,6 +1,13 @@
 ---
-# Use a VM to test kernel namespace changes, tmpfs changes; and validate all
-# default options are set correctly.
+###############################################################################
+# Default
+###############################################################################
+# Kernel namespace changes require VM testing.
+#
+# Tests:
+# * tmpfs changes applied.
+# * Default options are set correctly.
+
 dependency:
   name: 'galaxy'
 driver:
@@ -16,10 +23,10 @@ provisioner:
   name: 'ansible'
   config_options:
     defaults:
-      interpreter_python: 'auto_silent'  # suppress warnings
-      callback_whitelist: 'profile_tasks, timer, yaml'  # output profiling info
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
 platforms:
-  - name: 'debian-debian-12-vm-default'
+  - name: 'os-debian-12-vm-default'
     box: 'debian/bookworm64'
     memory: 4096
     cpus: 2

@@ -13,8 +13,9 @@
 # * https://github.com/ansible-collections/community.general/issues/7498
 # * https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html
 # * https://linuxize.com/post/how-to-set-or-change-timezone-on-debian-10/
+# yamllint enable rule:line-length
 
 - name: 'Timezone | set'
   notify: 'Handlers | restart cron'
   community.general.timezone:
-    name: '{{ debian_timezone }}'
+    name: '{{ os_timezone }}'

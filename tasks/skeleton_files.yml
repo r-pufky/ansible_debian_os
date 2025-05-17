@@ -1,22 +1,22 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Add skeleton files.
 ###############################################################################
 
 - name: 'Skeleton files | copy files'
   ansible.posix.synchronize:
-    src: '{{ debian_skeleton_files }}'
+    src: '{{ os_skeleton_files }}'
     dest: '/etc/skel'
     delete: true
     recursive: true
     archive: false
     checksum: true
-  register: _debian_skel
+  register: _os_skel
 
-- name: 'Skeleton files | set file permissions'  # noqa: no-handler execute immediately for new users to pull skel files correctly
-  when: _debian_skel.changed
-  ansible.builtin.shell: |
+# Set immediately for new users to pull skeleton files correctly.
+- name: 'Skeleton files | set file permissions'  # noqa: no-handler
+  when: _os_skel.changed
+  ansible.builtin.shell: >
     chown -R root:root /etc/skel &&
     find /etc/skel -type d -exec chmod 0755 {} \; &&
     find /etc/skel -type f -exec chmod 0644 {} \;

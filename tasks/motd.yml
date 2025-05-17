@@ -6,14 +6,14 @@
 - name: 'MOTD | set'
   ansible.builtin.copy:
     dest: '/etc/motd'
-    content: '{{ debian_motd }}'
+    content: '{{ os_motd }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
     force: true
 
 - name: 'MOTD | add extended uptime reboot notification'
-  when: debian_motd_extended_reboot_warning
+  when: os_motd_extended_reboot_warning
   ansible.builtin.template:
     src: '98-reboot-required.j2'
     dest: '/etc/update-motd.d/98-reboot-required'
@@ -22,7 +22,7 @@
     mode: '0755'
 
 - name: 'MOTD | clear extended uptime reboot notification'
-  when: not debian_motd_extended_reboot_warning
+  when: not os_motd_extended_reboot_warning
   ansible.builtin.file:
     path: '/etc/update-motd.d/98-reboot-required'
     state: 'absent'

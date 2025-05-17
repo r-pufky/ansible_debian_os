@@ -19,7 +19,7 @@
 # automatically on a configuration change which installs or changes devices.
 #
 # Default: False.
-debian_gpu_passthrough: false
+os_gpu_passthrough: false
 
 # GPU passthrough mode.
 #
@@ -28,7 +28,7 @@ debian_gpu_passthrough: false
 #   guest: configure GPU passthrough as guest (machine without hardware GPU)
 #
 # Default: 'guest'.
-debian_gpu_passthrough_mode: 'guest'
+os_gpu_passthrough_mode: 'guest'
 
 # GPU brand.
 #
@@ -38,7 +38,7 @@ debian_gpu_passthrough_mode: 'guest'
 #    intel: intel-based iGPU support
 #
 # Default: 'nvidia'.
-debian_gpu_brand: 'nvidia'
+os_gpu_brand: 'nvidia'
 
 # GPU driver version to use.
 #
@@ -52,4 +52,4 @@ debian_gpu_brand: 'nvidia'
 # is no longer available upstream, use a newer version.
 #
 # Default: '470'.
-debian_gpu_driver: '470'
+os_gpu_driver: '470'

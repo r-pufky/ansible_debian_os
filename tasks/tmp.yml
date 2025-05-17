@@ -1,14 +1,13 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Use RAM for /tmp via tmpfs.
 ###############################################################################
 # Debian mounts /tmp as tmpfs by default; just manage the mount options.
 #
-- name: '/tmp | create in-memory {{ debian_tmp_ram }}'
+- name: '/tmp | create in-memory {{ os_tmp_ram }}'
   ansible.posix.mount:
-    path: '{{ debian_role_tmpfs }}'
+    path: '{{ os_role_tmpfs }}'
     src: 'tmpfs'
     fstype: 'tmpfs'
-    opts: 'defaults,size={{ debian_tmp_ram }}'
+    opts: 'defaults,size={{ os_tmp_ram }}'
     state: 'mounted'

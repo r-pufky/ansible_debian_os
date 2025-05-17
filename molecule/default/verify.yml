@@ -1,48 +1,34 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Default | verify'
   hosts: 'all'
   gather_facts: false
   become: true
   tasks:
-    - name: 'Default | verify | query locales'
-      ansible.builtin.copy:
-        src: 'files/locale'
-        dest: '/etc/default/locale'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
-      check_mode: true
-      diff: true
-      register: _test_debian_locales
+    - name: 'Default | verify | locales'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | locales'
+        test_src: 'files/locale'
+        test_file: '/etc/default/locale'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'
 
-    - name: 'Default | verify | assert correct locales'
-      ansible.builtin.assert:
-        that:
-          - not _test_debian_locales.changed
-        fail_msg: >
-          /etc/default/locale should be using en_US.UTF-8
-          ({{ _test_debian_locales.diff }}).
+    - name: 'Default | verify | timezone'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | timezone'
+        test_src: 'files/timezone'
+        test_file: '/etc/timezone'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'
 
-    - name: 'Default | verify | query timezone'
-      ansible.builtin.copy:
-        src: 'files/timezone'
-        dest: '/etc/timezone'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
-      check_mode: true
-      diff: true
-      register: _test_debian_timezone
-
-    - name: 'Default | verify | assert correct timezone'
-      ansible.builtin.assert:
-        that:
-          - not _test_debian_timezone.changed
-        fail_msg: >
-          /etc/timezone should be using Etc/UTC
-          ({{ _test_debian_timezone.diff }}).
-
+    # TODO(role): use the test template?
     - name: 'Default | verify | query MOTD'
       ansible.builtin.copy:
         content: ''
@@ -52,38 +38,40 @@
         mode: '0644'
       check_mode: true
       diff: true
-      register: _test_debian_motd
+      register: _test_os_motd
 
     - name: 'Default | verify | assert correct MOTD'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - not _test_debian_motd.changed
-        fail_msg: '/etc/motd should be empty ({{ _test_debian_motd.diff }}).'
+          - not _test_os_motd.changed
+        fail_msg: '✘ /etc/motd should be empty ({{ _test_os_motd.diff }}).'
 
-
-    - name: 'Default | verify | query MOTD reboot notification'
-      ansible.builtin.stat:
-        path: '/etc/update-motd.d/98-reboot-required'
-      register: _test_debian_reboot_notification
-
-    - name: 'Default | verify | assert MOTD reboot notification'
-      ansible.builtin.assert:
-        that:
-          - _test_debian_reboot_notification.stat.exists
-        fail_msg: '/etc/update-motd.d/98-reboot-required should exist.'
+    - name: 'Default | verify | MOTD reboot notification'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'file.yml'
+      vars:
+        test_name: 'Default | verify | MOTD reboot notification'
+        test_file: '/etc/update-motd.d/98-reboot-required'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0755'
+        test_state: 'file'
 
     - name: 'Default | verify | query inotify'
       ansible.builtin.command: 'sysctl --values fs.inotify.max_user_watches'
-      register: _test_debian_inotify
+      register: _test_os_inotify
       changed_when: false
 
     - name: 'Default | verify | assert inotify set'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - _test_debian_inotify.stdout | int == 1048576
+          - _test_os_inotify.stdout | int == 1048576
         fail_msg: >
-          sysctl should report fs.inotify.max_user_watches=1048576
-          ({{ _test_debian_inotify.stdout }}).
+          ✘ sysctl should report fs.inotify.max_user_watches=1048576
+          ({{ _test_os_inotify.stdout }}).
 
     - name: 'Default | verify | query skeleton files'
       ansible.builtin.find:
@@ -91,70 +79,68 @@
         recurse: false
         hidden: true
         file_type: 'file'
-      register: _test_debian_skel
+      register: _test_os_skel
 
     - name: 'Default | verify | assert default skeleton files'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - _test_debian_skel.files | length == 3
-        fail_msg: '/etc/skel/{.bash_logout,.bashrc,.profile} not found.'
+          - _test_os_skel.files | length == 3
+        fail_msg: '✘ /etc/skel/{.bash_logout,.bashrc,.profile} not found.'
 
-    # auto_reboot uses r_pufky.srv.systemd. Confirm both files exist and test
+    # auto_reboot uses r_pufky.deb.systemd. Confirm both files exist and test
     # static reboot.timer for correctness.
-    - name: 'Default | verify | query expected reboot.timer'
-      ansible.builtin.copy:
-        src: 'files/reboot.timer'
-        dest: '/etc/systemd/system/reboot.timer'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
-      check_mode: true
-      diff: true
-      register: _test_debian_auto_reboot_timer
+    - name: 'Default | verify | reboot.timer'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | reboot.timer'
+        test_src: 'files/reboot.timer'
+        test_file: '/etc/systemd/system/reboot.timer'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'
 
-    - name: 'Default | verify | assert expected reboot.timer'
-      ansible.builtin.assert:
-        that:
-          - not _test_debian_auto_reboot_timer.changed
-        fail_msg: >
-          /etc/systemd/system/reboot.timer is not in expected format:
-          {{ _test_debian_auto_reboot_timer.diff }}.
+    - name: 'Default | verify | reboot.service'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'file.yml'
+      vars:
+        test_name: 'Default | verify | reboot.service'
+        test_file: '/etc/systemd/system/reboot.service'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'
+        test_state: 'file'
 
-    - name: 'Default | verify | query reboot.service'
-      ansible.builtin.stat:
-        path: '/etc/systemd/system/reboot.service'
-      register: _test_debian_auto_reboot_service
-
-    - name: 'Default | verify | assert reboot.service'
-      ansible.builtin.assert:
-        that:
-          - _test_debian_auto_reboot_service.stat.exists
-        fail_msg: /etc/systemd/system/reboot.service does not exist.
-
-    # Vagrant user automatically create for VMs; check that is locked down.
+    # Vagrant user automatically created for VMs; check that is locked down.
     - name: 'Default | verify | query home lockdown'
       ansible.builtin.stat:
         path: '/home/vagrant/.bashrc'
-      register: _test_debian_lockdown
+      register: _test_os_lockdown
 
     - name: 'Default | verify | assert home lockdown'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - _test_debian_lockdown.stat.exists
-          - _test_debian_lockdown.stat.gr_name == 'vagrant'
-          - _test_debian_lockdown.stat.pw_name == 'vagrant'
-          - _test_debian_lockdown.stat.mode == '0600'
-        fail_msg: '/home not locked down. Expected (D: go-rwx, F: go-rwx).'
+          - _test_os_lockdown.stat.exists
+          - _test_os_lockdown.stat.gr_name == 'vagrant'
+          - _test_os_lockdown.stat.pw_name == 'vagrant'
+          - _test_os_lockdown.stat.mode == '0600'
+        fail_msg: '✘ /home not locked down. Expected (D: go-rwx, F: go-rwx).'
 
     - name: 'Default | verify | query expected /etc/fstab'
       ansible.builtin.slurp:
         path: '/etc/fstab'
-      register: _test_debian_tmp
+      register: _test_os_tmp
 
+    # yamllint disable rule:line-length
     - name: 'Default | verify | assert expected fstab'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - '"tmpfs /tmp tmpfs defaults,size=1% 0 0" in _test_debian_tmp.content | b64decode'
+          - '"tmpfs /tmp tmpfs defaults,size=1% 0 0" in _test_os_tmp.content | b64decode'
         fail_msg: >
-          /etc/fstab should have 'tmpfs /tmp tmpfs defaults,size=1% 0 0' but
-          does not: {{ _test_debian_tmp.content | b64decode }}.
+          ✘ /etc/fstab should have 'tmpfs /tmp tmpfs defaults,size=1% 0 0' but
+          does not: {{ _test_os_tmp.content | b64decode }}.

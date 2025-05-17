@@ -10,7 +10,7 @@
 #
 # Args:
 #   pve_nvidia_driver: string full or partial driver version to install.
-#   pve_debian_base: string debian release codename to install backports
+#   pve_os_base: string debian release codename to install backports
 #       from, empty string disables.
 #   pve_nvidia_passthrough: boolean true to enable GPU passthrough.
 #
@@ -26,13 +26,13 @@
 #     - name: 'GPU passthrough | nvidia host | add non-free (for GPU passthrough support) repo'
 #       ansible.builtin.apt_repository:
 #         repo: '{{ item }}'
-#         filename: 'debian_core'
+#         filename: 'os_core'
 #         state: 'present'
 #         update_cache: true
 #       loop:
-#         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }} main contrib non-free'
-#         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }}-updates main contrib non-free'
-#         - 'deb http://security.debian.org {{ pve_debian_base }}-security main contrib non-free'
+#         - 'deb http://ftp.us.debian.org/debian {{ pve_os_base }} main contrib non-free'
+#         - 'deb http://ftp.us.debian.org/debian {{ pve_os_base }}-updates main contrib non-free'
+#         - 'deb http://security.debian.org {{ pve_os_base }}-security main contrib non-free'
 #
 #     - name: 'GPU passthrough | nvidia host | remove original apt sources'
 #       ansible.builtin.apt_repository:
@@ -40,9 +40,9 @@
 #         state: 'absent'
 #         update_cache: true
 #       loop:
-#         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }} main contrib'
-#         - 'deb http://ftp.us.debian.org/debian {{ pve_debian_base }}-updates main contrib'
-#         - 'deb http://security.debian.org {{ pve_debian_base }}-security main contrib'
+#         - 'deb http://ftp.us.debian.org/debian {{ pve_os_base }} main contrib'
+#         - 'deb http://ftp.us.debian.org/debian {{ pve_os_base }}-updates main contrib'
+#         - 'deb http://security.debian.org {{ pve_os_base }}-security main contrib'
 #
 # - name: 'GPU passthrough | nvidia host | install pve headers'
 #   ansible.builtin.apt:
@@ -59,19 +59,19 @@
 #   failed_when: _pve_gpu_detect.rc != 0
 #
 # - name: 'GPU passthrough | nvidia host | Enable backports for Nvidia GPUs'
-#   when: pve_debian_base|length > 0
+#   when: pve_os_base|length > 0
 #   block:
 #
 #     - name: 'GPU passthrough | nvidia host | add debian backports for nvidia support'
 #       ansible.builtin.apt_repository:
-#         repo: 'deb http://deb.debian.org/debian {{ pve_debian_base }}-backports main contrib non-free'
+#         repo: 'deb http://deb.debian.org/debian {{ pve_os_base }}-backports main contrib non-free'
 #         filename: 'backports'
 #         state: 'present'
 #         update_cache: true
 #
 #     - name: 'GPU passthrough | nvidia host | add debian source backports for nvidia support'
 #       ansible.builtin.apt_repository:
-#         repo: 'deb http://deb.debian.org/debian {{ pve_debian_base }}-backports main contrib non-free'
+#         repo: 'deb http://deb.debian.org/debian {{ pve_os_base }}-backports main contrib non-free'
 #         filename: 'backports_source'
 #         state: 'present'
 #         update_cache: true
@@ -81,14 +81,14 @@
 #         name:
 #           - 'nvidia-driver={{ pve_nvidia_driver }}*'
 #           - 'nvidia-smi={{ pve_nvidia_driver }}*'
-#         default_release: '{{ pve_debian_base }}-backports'
+#         default_release: '{{ pve_os_base }}-backports'
 #         update_cache: true
 #         state: 'present'
 #       register: _pve_gpu_host_driver
 #
 #
 # - name: 'GPU passthrough | nvidia host | install nvidia drivers'
-#   when: pve_debian_base|length == 0
+#   when: pve_os_base|length == 0
 #   ansible.builtin.apt:
 #     name:
 #       - 'nvidia-driver={{ pve_nvidia_driver }}*'

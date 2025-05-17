@@ -1,5 +1,5 @@
 #!/bin/bash
-DAYS_BEFORE_PROMPT={{ debian_motd_extended_reboot_warning | default(0) }}
+DAYS_BEFORE_PROMPT={{ os_motd_extended_reboot_warning | default(0) }}
 uptime=$(</proc/uptime)
 uptime=${uptime%%.*}
 days=$(( uptime/60/60/24 ))
