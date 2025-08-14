@@ -32,7 +32,12 @@
 
 - name: 'Full upgrade | NOOP'
   ansible.builtin.debug:
-    msg: 'Full upgrade currently disabled until migrated'
+    msg: |
+      ╭───────────────────────────────────────────────────────────────────╮
+      │                                                                   │
+      │          Full upgrade currently disabled until migrated.          │
+      │                                                                   │
+      ╰───────────────────────────────────────────────────────────────────╯
 
 # - name: 'Distro upgrade | WARNING'
 #   ansible.builtin.debug:

@@ -1,35 +1,37 @@
 ---
-- name: 'Default | verify'
+- name: 'Verify'
   hosts: 'all'
   gather_facts: false
   become: true
   tasks:
-    - name: 'Default | verify | locales'
+    - name: 'Verify | locales'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | locales'
+        test_name: 'Verify | locales'
         test_src: 'files/locale'
         test_file: '/etc/default/locale'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
 
-    - name: 'Default | verify | timezone'
+    - name: 'Verify | timezone'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | timezone'
+        test_name: 'Verify | timezone'
         test_src: 'files/timezone'
         test_file: '/etc/timezone'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
 
     # TODO(role): use the test template?
-    - name: 'Default | verify | query MOTD'
+    - name: 'Verify | query MOTD'
       ansible.builtin.copy:
         content: ''
         dest: '/etc/motd'
@@ -40,31 +42,32 @@
       diff: true
       register: _test_os_motd
 
-    - name: 'Default | verify | assert correct MOTD'
+    - name: 'Verify | assert correct MOTD'
       ansible.builtin.assert:
         quiet: true
         that:
           - not _test_os_motd.changed
         fail_msg: '✘ /etc/motd should be empty ({{ _test_os_motd.diff }}).'
 
-    - name: 'Default | verify | MOTD reboot notification'
+    - name: 'Verify | MOTD reboot notification'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'file.yml'
       vars:
-        test_name: 'Default | verify | MOTD reboot notification'
+        test_name: 'Verify | MOTD reboot notification'
         test_file: '/etc/update-motd.d/98-reboot-required'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0755'
         test_state: 'file'
+        test_diff: true
 
-    - name: 'Default | verify | query inotify'
+    - name: 'Verify | query inotify'
       ansible.builtin.command: 'sysctl --values fs.inotify.max_user_watches'
       register: _test_os_inotify
       changed_when: false
 
-    - name: 'Default | verify | assert inotify set'
+    - name: 'Verify | assert inotify set'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -73,7 +76,7 @@
           ✘ sysctl should report fs.inotify.max_user_watches=1048576
           ({{ _test_os_inotify.stdout }}).
 
-    - name: 'Default | verify | query skeleton files'
+    - name: 'Verify | query skeleton files'
       ansible.builtin.find:
         paths: '/etc/skel'
         recurse: false
@@ -81,7 +84,7 @@
         file_type: 'file'
       register: _test_os_skel
 
-    - name: 'Default | verify | assert default skeleton files'
+    - name: 'Verify | assert default skeleton files'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -90,37 +93,39 @@
 
     # auto_reboot uses r_pufky.deb.systemd. Confirm both files exist and test
     # static reboot.timer for correctness.
-    - name: 'Default | verify | reboot.timer'
+    - name: 'Verify | reboot.timer'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | reboot.timer'
+        test_name: 'Verify | reboot.timer'
         test_src: 'files/reboot.timer'
         test_file: '/etc/systemd/system/reboot.timer'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
 
-    - name: 'Default | verify | reboot.service'
+    - name: 'Verify | reboot.service'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'file.yml'
       vars:
-        test_name: 'Default | verify | reboot.service'
+        test_name: 'Verify | reboot.service'
         test_file: '/etc/systemd/system/reboot.service'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
         test_state: 'file'
+        test_diff: true
 
     # Vagrant user automatically created for VMs; check that is locked down.
-    - name: 'Default | verify | query home lockdown'
+    - name: 'Verify | query home lockdown'
       ansible.builtin.stat:
         path: '/home/vagrant/.bashrc'
       register: _test_os_lockdown
 
-    - name: 'Default | verify | assert home lockdown'
+    - name: 'Verify | assert home lockdown'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -130,13 +135,13 @@
           - _test_os_lockdown.stat.mode == '0600'
         fail_msg: '✘ /home not locked down. Expected (D: go-rwx, F: go-rwx).'
 
-    - name: 'Default | verify | query expected /etc/fstab'
+    - name: 'Verify | query expected /etc/fstab'
       ansible.builtin.slurp:
         path: '/etc/fstab'
       register: _test_os_tmp
 
     # yamllint disable rule:line-length
-    - name: 'Default | verify | assert expected fstab'
+    - name: 'Verify | assert expected fstab'
       ansible.builtin.assert:
         quiet: true
         that:
