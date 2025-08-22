@@ -95,15 +95,16 @@ os_reboot: '1month'
 # Default: 300 (seconds).
 os_reboot_variance: 300
 
-# Lockdown all home directories (remove all group/other perms). Default: True.
+# Lockdown all home directories (remove all group/other perms)? Default: True.
 os_lockdown_home: true
 
 # Define RAM use (mounted as /tmp via tmpfs) for temporary files.
 #
 # Values:
-#    #: Max size in bytes. 0 removes limit. Uses fstab size suffixes: k, m, g,
-#       Ki, Mi, Gi, etc. A '%' will limit size to a percentage of physical RAM.
-#   '': disable limits (will use as much RAM as possible).
+#     #: Max size in bytes. 0 removes limit. Uses fstab size suffixes: k, m, g,
+#        Ki, Mi, Gi, etc. '%' will limit size to a percentage of physical RAM.
+#   50%: Trixie /tmp default.
+#    '': disable limits (will use as much RAM as possible).
 #
 # Default: '1%' (1% of system RAM).
 os_tmp_ram: '1%'

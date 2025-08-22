@@ -11,7 +11,7 @@
 # Reference:
 # * https://wiki.debian.org/NvidiaGraphicsDrivers
 
-# Enable GPU passthrough.
+# Enable GPU passthrough?
 #
 # Enables configuration of GPU passthrough. This should only be enabled on
 # nodes where passthrough is used. Enabling passthrough will automatically
@@ -24,8 +24,8 @@ os_gpu_passthrough: false
 # GPU passthrough mode.
 #
 # Values:
-#    host: configure GPU passthrough as host (machine with hardware GPU)
-#   guest: configure GPU passthrough as guest (machine without hardware GPU)
+#    host: Configure GPU passthrough as host (machine with hardware GPU).
+#   guest: Configure GPU passthrough as guest (machine without hardware GPU).
 #
 # Default: 'guest'.
 os_gpu_passthrough_mode: 'guest'
@@ -33,9 +33,9 @@ os_gpu_passthrough_mode: 'guest'
 # GPU brand.
 #
 # Values:
-#   nvidia: nvidia-based card supported in nivida-driver packages
-#      amd: amd-based card supported in mesa-vulkan packages
-#    intel: intel-based iGPU support
+#   nvidia: Nvidia-based card supported in nivida-driver packages.
+#      amd: Amd-based card supported in mesa-vulkan packages.
+#    intel: Intel-based iGPU support.
 #
 # Default: 'nvidia'.
 os_gpu_brand: 'nvidia'

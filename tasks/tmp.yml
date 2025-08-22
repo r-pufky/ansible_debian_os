@@ -9,5 +9,5 @@
     path: '{{ os_role_tmpfs }}'
     src: 'tmpfs'
     fstype: 'tmpfs'
-    opts: 'defaults,size={{ os_tmp_ram }}'
+    opts: 'mode=1777,nosuid,nodev,size={{ os_tmp_ram }}'
     state: 'mounted'
