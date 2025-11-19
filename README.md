@@ -17,6 +17,8 @@ generally small one-off changes that are always applied fleetwide. Should be
 applied before any additional configuration is done to setup the system in a
 known state (users, services, apt, etc).
 
+[Additional documentation](http://r-pufky.github.io/r-pufky/docs/os/debian).
+
 Debian defaults are used unless there are explicit security concerns; see
 defaults for all default values.
 

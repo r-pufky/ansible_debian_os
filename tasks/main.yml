@@ -34,6 +34,6 @@
   when: os_tmp_ram
   ansible.builtin.import_tasks: 'tmp.yml'
 
-# Force cron restart for timezone changes
+# Force cron restart for timezone changes.
 - name: 'Flush handlers'
   ansible.builtin.meta: 'flush_handlers'
