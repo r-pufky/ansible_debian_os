@@ -3,17 +3,23 @@
 # Debian Role Options
 ###############################################################################
 
-# Last time debian options were validated against a default configuration.
-os_role_validate_date: '2025-08-22'
-os_role_validate_release: 'trixie'
+os___release: "{{ {} | r_pufky.data.v3(
 
-# Default TMPFS location.
-os_role_tmpfs: '/tmp'
+    _date='2025-08-22',
+    _debian='trixie',
+  ) }}"
+
+os___app: "{{ {} | r_pufky.data.v3(
+
+    _tmpfs='/tmp',
+    _systemd_dir='/etc/systemd/system',
+    _motd_file='/etc/update-motd.d/98-reboot-required',
+  ) }}"
 
 ###############################################################################
 # APT Packages
 ###############################################################################
 
-os_role_packages:
+os___packages:
   - 'rsync'  # ansible.posix.synchronize (skeleton files).
   - 'locales'  # locales management.

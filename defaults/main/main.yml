@@ -1,24 +1,22 @@
 ---
 ###############################################################################
-# Debian Role Configuration
+# Config
 ###############################################################################
 # Base OS configuration. Common OS level configuration that does not warrant a
 # separate role.
 
-###############################################################################
 # Locales
 ###############################################################################
 # Reference:
 # * https://en.wikipedia.org/wiki/Locale_(computer_software)
 
 # List of locales to install. Default: ['en_US.UTF-8'].
-os_locales:
+os_cfg_locales:
   - 'en_US.UTF-8'
 
 # System default locale. Default: 'en_US.UTF-8'.
-os_default_system_locale: 'en_US.UTF-8'
+os_cfg_default_system_locale: 'en_US.UTF-8'
 
-###############################################################################
 # Timezones
 ###############################################################################
 # Set system Timezone.
@@ -26,9 +24,8 @@ os_default_system_locale: 'en_US.UTF-8'
 # Uses values from 'timedatectl list-timezones'.
 #
 # Default: 'Etc/UTC'.
-os_timezone: 'Etc/UTC'
+os_cfg_timezone: 'Etc/UTC'
 
-###############################################################################
 # Optimizations to Base Debian Installation
 ###############################################################################
 # Optimizations are common OS-level changes that are applied fleet wide,
@@ -37,7 +34,7 @@ os_timezone: 'Etc/UTC'
 # See tasks for explicit steps if unclear.
 
 # Set MOTD message. Default: '' (disabled).
-os_motd: ''
+os_cfg_motd: ''
 
 # Display additional MOTD login message about excessive uptime (days).
 #
@@ -45,12 +42,12 @@ os_motd: ''
 #   0: disable.
 #
 # Default: 21 (days).
-os_motd_extended_reboot_warning: 21
+os_cfg_motd_extended_reboot_warning: 21
 
 # Set fs.inotify.max_user_watches inotify limit.
 #
 # Special Case:
-#   * Containers should always use -1.
+#   * Containers should always use -1 (disable).
 #
 # Values:
 #           -1: disable management (use current/host/default settings).
@@ -59,7 +56,7 @@ os_motd_extended_reboot_warning: 21
 #   2147483647: Maximum value.
 #
 # Default: 1048576.
-os_inotify_limit: 1048576
+os_cfg_inotify_limit: 1048576
 
 # Set system skeleton files.
 #
@@ -67,11 +64,11 @@ os_inotify_limit: 1048576
 # skeleton files in /etc/skel setting appropriate permissions. Skeleton files
 # are sync'ed before user accounts are modified.
 #
-# os_skeleton_files: 'group_vars/all/debian/skel'
-# os_skeleton_files: 'host_vars/custom_skel.example.com/files/skel'
+# os_cfg_skeleton_files: 'group_vars/all/debian/skel'
+# os_cfg_skeleton_files: 'host_vars/custom_skel.example.com/files/skel'
 #
 # Default: '' (disabled).
-os_skeleton_files: ''
+os_cfg_skeleton_files: ''
 
 # Automatically reboot the system after specified amount of uptime.
 #
@@ -86,17 +83,17 @@ os_skeleton_files: ''
 # Reference:
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html#
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.timer.html
-os_reboot: '1month'
+os_cfg_reboot: '1month'
 
 # Variance in seconds before triggering an automatic reboot.
 #
 # Idempotency based on hostname.
 #
 # Default: 300 (seconds).
-os_reboot_variance: 300
+os_cfg_reboot_variance: 300
 
 # Lockdown all home directories (remove all group/other perms)? Default: True.
-os_lockdown_home: true
+os_cfg_lockdown_home: true
 
 # Define RAM use (mounted as /tmp via tmpfs) for temporary files.
 #
@@ -107,4 +104,4 @@ os_lockdown_home: true
 #    '': disable limits (will use as much RAM as possible).
 #
 # Default: '1%' (1% of system RAM).
-os_tmp_ram: '1%'
+os_cfg_tmp_ram: '1%'

@@ -3,7 +3,30 @@
 # OS Handlers
 ###############################################################################
 
-- name: 'Handlers | restart cron'
-  ansible.builtin.service:
+- name: 'Handlers | systemd'
+  listen:
+    - 'Handlers | systemd reboot.timer'
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: 'Handlers | reboot.timer'
+  listen:
+    - 'Handlers | systemd reboot.timer'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: true
+  loop:
+    - 'reboot.timer'
+    - 'reboot.service'
+
+- name: 'Handlers | reboot.timer (tick)'
+  listen:
+    - 'Handlers | systemd reboot.timer'
+  ansible.builtin.systemd:
+    name: 'reboot.timer'
+    state: 'started'
+
+- name: 'Handlers | cron'
+  ansible.builtin.systemd:
     name: 'cron'
     state: 'restarted'

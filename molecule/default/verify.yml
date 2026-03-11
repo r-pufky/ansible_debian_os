@@ -4,12 +4,12 @@
   gather_facts: false
   become: true
   tasks:
-    - name: 'Verify | locales'
+    - name: 'Verify | test | /etc/default/locale'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Verify | locales'
+        test_name: 'Verify | test | /etc/default/locale'
         test_src: 'files/locale'
         test_file: '/etc/default/locale'
         test_owner: 'root'
@@ -17,53 +17,40 @@
         test_mode: '0644'
         test_diff: true
 
-    - name: 'Verify | query timezone'
+    - name: 'Verify | cmd | query timezone'
       ansible.builtin.command: 'timedatectl'
-      register: _test_os_timezone
+      register: os__test_timezone
       changed_when: false
 
-    - name: 'Verity | assert timezone'
+    - name: 'Verity | assert | timezone set'
       ansible.builtin.assert:
         quiet: true
-        that: '_test_os_timezone.stdout is search("Time zone: Etc/UTC")'
+        that: 'os__test_timezone.stdout is search("Time zone: Etc/UTC")'
         fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │                    Timezone should be Etc/UTC                     │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ {{ _test_os_timezone.stdout }}
 
-    # TODO(role): use the test template?
-    - name: 'Verify | query MOTD'
-      ansible.builtin.copy:
-        content: ''
-        dest: '/etc/motd'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
-      check_mode: true
-      diff: true
-      register: _test_os_motd
+          ✘ Timezone should be Etc/UTC
 
-    - name: 'Verify | assert correct MOTD'
-      ansible.builtin.assert:
-        quiet: true
-        that: 'not _test_os_motd.changed'
-        fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │                     /etc/motd should be empty                     │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ /etc/motd: {{ _test_os_motd.diff }}
+          {{ os__test_timezone.stdout }}
 
-    - name: 'Verify | MOTD reboot notification'
+    - name: 'Verify | test | /etc/motd'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Verify | test | /etc/motd'
+        test_src: 'files/motd'
+        test_file: '/etc/motd'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'
+        test_diff: true
+
+    - name: 'Verify | test | /etc/update-motd.d/98-reboot-required'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
         tasks_from: 'file.yml'
       vars:
-        test_name: 'Verify | MOTD reboot notification'
+        test_name: 'Verify | test | /etc/update-motd.d/98-reboot-required'
         test_file: '/etc/update-motd.d/98-reboot-required'
         test_owner: 'root'
         test_group: 'root'
@@ -71,50 +58,43 @@
         test_state: 'file'
         test_diff: true
 
-    - name: 'Verify | query inotify'
+    - name: 'Verify | cmd | query inotify'
       ansible.builtin.command: 'sysctl --values fs.inotify.max_user_watches'
-      register: _test_os_inotify
+      register: os__test_inotify
       changed_when: false
 
-    - name: 'Verify | assert inotify set'
+    - name: 'Verify | assert | inotify set'
       ansible.builtin.assert:
         quiet: true
-        that: '_test_os_inotify.stdout | int == 1048576'
+        that: 'os__test_inotify.stdout | int == 1048576'
         fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │     sysctl should report fs.inotify.max_user_watches=1048576      │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ fs.inotify.max_user_watches: {{ _test_os_inotify.stdout }}
 
-    - name: 'Verify | query skeleton files'
+          ✘ sysctl should report fs.inotify.max_user_watches=1048576
+
+          fs.inotify.max_user_watches: {{ os__test_inotify.stdout }}
+
+    - name: 'Verify | filesystem | query skeleton files'
       ansible.builtin.find:
         paths: '/etc/skel'
         recurse: false
         hidden: true
         file_type: 'file'
-      register: _test_os_skel
+      register: os__test_skel
 
-    - name: 'Verify | assert default skeleton files'
+    - name: 'Verify | assert | default skeleton files'
       ansible.builtin.assert:
         quiet: true
-        that: '_test_os_skel.files | length == 3'
+        that: 'os__test_skel.files | length == 3'
         fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │       /etc/skel/{.bash_logout,.bashrc,.profile} not found.        │
-          │                                                                   │
-          ╰───────────────────────────────────────────────────────────────────╯
 
-    # auto_reboot uses r_pufky.deb.systemd. Confirm both files exist and test
-    # static reboot.timer for correctness.
-    - name: 'Verify | reboot.timer'
+          ✘ /etc/skel/{.bash_logout,.bashrc,.profile} not found.
+
+    - name: 'Verify | test | /etc/systemd/system/reboot.timer'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Verify | reboot.timer'
+        test_name: 'Verify | test | /etc/systemd/system/reboot.timer'
         test_src: 'files/reboot.timer'
         test_file: '/etc/systemd/system/reboot.timer'
         test_owner: 'root'
@@ -122,12 +102,12 @@
         test_mode: '0644'
         test_diff: true
 
-    - name: 'Verify | reboot.service'
+    - name: 'Verify | test | /etc/systemd/system/reboot.service'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
         tasks_from: 'file.yml'
       vars:
-        test_name: 'Verify | reboot.service'
+        test_name: 'Verify | test | /etc/systemd/system/reboot.service'
         test_file: '/etc/systemd/system/reboot.service'
         test_owner: 'root'
         test_group: 'root'
@@ -136,42 +116,37 @@
         test_diff: true
 
     # Vagrant user automatically created for VMs; check that is locked down.
-    - name: 'Verify | query home lockdown'
+    - name: 'Verify | filesystem | query /home/vagrant/.bashrc'
       ansible.builtin.stat:
         path: '/home/vagrant/.bashrc'
-      register: _test_os_lockdown
+      register: os__test_lockdown
 
-    - name: 'Verify | assert home lockdown'
+    - name: 'Verify | assert | home lockdown'
       ansible.builtin.assert:
         quiet: true
         that:
-          - _test_os_lockdown.stat.exists
-          - _test_os_lockdown.stat.gr_name == 'vagrant'
-          - _test_os_lockdown.stat.pw_name == 'vagrant'
-          - _test_os_lockdown.stat.mode == '0600'
+          - os__test_lockdown.stat.exists
+          - os__test_lockdown.stat.gr_name == 'vagrant'
+          - os__test_lockdown.stat.pw_name == 'vagrant'
+          - os__test_lockdown.stat.mode == '0600'
         fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │      /home not locked down. Expected (D: go-rwx, F: go-rwx).      │
-          │                                                                   │
-          ╰───────────────────────────────────────────────────────────────────╯
 
-    - name: 'Verify | query expected /etc/fstab'
+          ✘ /home not locked down. Expected (D: go-rwx, F: go-rwx).
+
+    - name: 'Verify | filesystem | query /etc/fstab'
       ansible.builtin.slurp:
         path: '/etc/fstab'
-      register: _test_os_tmp
+      register: os__test_tmp
 
     # yamllint disable rule:line-length
-    - name: 'Verify | assert expected fstab'
+    - name: 'Verify | assert | /etc/fstab'
       ansible.builtin.assert:
         quiet: true
         that:
-          - '"tmpfs /tmp tmpfs mode=1777,nosuid,nodev,size=1% 0 0" in _test_os_tmp.content | b64decode'
+          - '"tmpfs /tmp tmpfs mode=1777,nosuid,nodev,size=1% 0 0" in os__test_tmp.content | b64decode'
         fail_msg: |
-          ╭───────────────────────────────────────────────────────────────────╮
-          │                                                                   │
-          │                    /etc/fstab /tmp incorrect.                     │
-          │                                                                   │
-          ├───────────────────────────────────────────────────────────────────╯
-          │ Expected: tmpfs /tmp tmpfs mode=1777,nosuid,nodev,size=1% 0 0
-          │ {{ _test_os_tmp.content | b64decode }}
+
+          ✘ /etc/fstab /tmp incorrect.
+
+          Expected: tmpfs /tmp tmpfs mode=1777,nosuid,nodev,size=1% 0 0
+          {{ os__test_tmp.content | b64decode }}

@@ -13,9 +13,9 @@
   community.general.locale_gen:
     name: '{{ item }}'
     state: 'present'
-  loop: '{{ os_locales }}'
+  loop: '{{ os_cfg_locales }}'
 
-- name: 'Locales | set system default locale'
+- name: 'Locales | filesystem | set /etc/default/locale'
   ansible.builtin.template:
     src: 'locale.j2'
     dest: '/etc/default/locale'

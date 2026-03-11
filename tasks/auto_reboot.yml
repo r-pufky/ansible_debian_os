@@ -6,52 +6,31 @@
 # * https://gist.github.com/hkoba/e05c91ebdd4e2ffd1d79e78e76cf1ff5
 # * https://opensource.com/article/20/7/systemd-timers
 
-- name: 'Auto reboot | create reboot timer service'
-  when: os_reboot | length > 0
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.systemd'
-  vars:
-    systemd_services:
-      - name: 'reboot'
-        state: 'present'
-        drop_in: false
-        unit:
-          description: 'periodic system reboot service'
-          requires: ['reboot.timer']
-        service:
-          type: 'simple'
-          exec_start:
-            - >-
-              /usr/bin/systemctl
-              --force reboot
-              --when={{
-                  os_reboot_variance |
-                  ansible.builtin.random(start=0, seed=inventory_hostname)
-                }}s
-        exec:
-          user: 'root'
-    systemd_timers:
-      - name: 'reboot'
-        state: 'present'
-        drop_in: false
-        unit:
-          description: 'periodic system reboot timer'
-        timer:
-          unit: 'reboot.service'
-          on_boot_sec: '{{ os_reboot | default("1month") }}'
-        install:
-          wanted_by: ['timers.target']
+- name: '{{
+      "Auto reboot | filesystem | set " ~ os___app._systemd_dir ~ "/reboot.*"
+    }}'
+  when: os_cfg_reboot | length > 0
+  notify:
+    - 'Handlers | systemd reboot.timer'
+  ansible.builtin.template:
+    src: '{{ "systemd/" ~ item ~ ".j2" }}'
+    dest: '{{ os___app._systemd_dir ~ "/" ~ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  loop:
+    - 'reboot.timer'
+    - 'reboot.service'
 
-- name: 'Auto reboot | disable reboot timer service'
-  when: os_reboot | length == 0
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.systemd'
-  vars:
-    systemd_services:
-      - name: 'reboot'
-        state: 'absent'
-        drop_in: false
-    systemd_timers:
-      - name: 'reboot'
-        state: 'absent'
-        drop_in: false
+- name: '{{
+      "Auto reboot | filesystem | remove " ~
+      os___app._systemd_dir ~ "/reboot.*"
+    }}'
+  when: os_cfg_reboot | length == 0
+  notify: 'Handlers | systemd'
+  ansible.builtin.file:
+    path: '{{ os___app._systemd_dir ~ "/" ~ item }}'
+    state: absent
+  loop:
+    - 'reboot.timer'
+    - 'reboot.service'

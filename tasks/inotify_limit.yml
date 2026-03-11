@@ -12,9 +12,12 @@
 # * https://github.com/torvalds/linux/commit/92890123749bafc317bbfacbe0a62ce08d78efb7
 # yamllint enable rule:line-length
 
-- name: 'Inotify limit | set to {{ os_inotify_limit }}'
-  when: os_inotify_limit != -1
+- name: '{{
+      "Inotify | sysctl | set fs.inotify.max_user_watches " ~
+      os_cfg_inotify_limit
+    }}'
+  when: os_cfg_inotify_limit != -1
   ansible.posix.sysctl:
     name: 'fs.inotify.max_user_watches'
-    value: '{{ os_inotify_limit }}'
+    value: '{{ os_cfg_inotify_limit }}'
     state: 'present'

@@ -2,7 +2,7 @@
 Description=periodic system reboot timer
 
 [Timer]
-OnBootSec=1month
+OnBootSec={{ os_cfg_reboot | default("1month") }}
 Unit=reboot.service
 
 [Install]

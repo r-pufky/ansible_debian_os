@@ -4,10 +4,10 @@
 ###############################################################################
 # Debian mounts /tmp as tmpfs by default; just manage the mount options.
 #
-- name: '/tmp | create in-memory {{ os_tmp_ram }}'
+- name: '{{ "/tmp | mount | create in-memory " ~ os_cfg_tmp_ram }}'
   ansible.posix.mount:
-    path: '{{ os_role_tmpfs }}'
+    path: '{{ os___app._tmpfs }}'
     src: 'tmpfs'
     fstype: 'tmpfs'
-    opts: 'mode=1777,nosuid,nodev,size={{ os_tmp_ram }}'
+    opts: '{{ "mode=1777,nosuid,nodev,size=" ~ os_cfg_tmp_ram }}'
     state: 'mounted'

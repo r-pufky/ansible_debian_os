@@ -3,20 +3,20 @@
 # Add skeleton files.
 ###############################################################################
 
-- name: 'Skeleton files | copy files'
+- name: 'Skeleton files | filesystem | set /etc/skel'
   ansible.posix.synchronize:
-    src: '{{ os_skeleton_files }}'
+    src: '{{ os_cfg_skeleton_files }}'
     dest: '/etc/skel'
     delete: true
     recursive: true
     archive: false
     checksum: true
-  register: _os_skel
+  register: os__skel
 
 # Set immediately for new users to pull skeleton files correctly.
-- name: 'Skeleton files | set file permissions'  # noqa: no-handler
-  when: _os_skel.changed
-  ansible.builtin.shell: >
+- name: 'Skeleton files | cmd | set file permissions'
+  when: os__skel.changed  # noqa: no-handler immediate.
+  ansible.builtin.shell: >-
     chown -R root:root /etc/skel &&
     find /etc/skel -type d -exec chmod 0755 {} \; &&
     find /etc/skel -type f -exec chmod 0644 {} \;

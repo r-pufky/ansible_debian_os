@@ -16,6 +16,6 @@
 # yamllint enable rule:line-length
 
 - name: 'Timezone | set'
-  notify: 'Handlers | restart cron'
+  notify: 'Handlers | cron'
   community.general.timezone:
-    name: '{{ os_timezone }}'
+    name: '{{ os_cfg_timezone }}'

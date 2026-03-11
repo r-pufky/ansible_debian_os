@@ -3,26 +3,26 @@
 # Manage MOTD messaging
 ###############################################################################
 
-- name: 'MOTD | set'
+- name: 'MOTD | filesystem | set /etc/motd'
   ansible.builtin.copy:
     dest: '/etc/motd'
-    content: '{{ os_motd }}'
+    content: '{{ os_cfg_motd }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
     force: true
 
-- name: 'MOTD | add extended uptime reboot notification'
-  when: os_motd_extended_reboot_warning
+- name: '{{ "MOTD | filesystem | set " ~ os___app._motd_file }}'
+  when: os_cfg_motd_extended_reboot_warning > 0
   ansible.builtin.template:
     src: '98-reboot-required.j2'
-    dest: '/etc/update-motd.d/98-reboot-required'
+    dest: '{{ os___app._motd_file }}'
     owner: 'root'
     group: 'root'
     mode: '0755'
 
-- name: 'MOTD | clear extended uptime reboot notification'
-  when: not os_motd_extended_reboot_warning
+- name: '{{ "MOTD | filesystem | remove " ~ os___app._motd_file }}'
+  when: os_cfg_motd_extended_reboot_warning == 0
   ansible.builtin.file:
-    path: '/etc/update-motd.d/98-reboot-required'
+    path: '{{ os___app._motd_file }}'
     state: 'absent'
