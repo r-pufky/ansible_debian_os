@@ -12,17 +12,17 @@
     mode: '0644'
     force: true
 
-- name: '{{ "MOTD | filesystem | set " ~ os___app._motd_file }}'
+- name: '{{ "MOTD | filesystem | set " ~ os___app._motd }}'
   when: os_cfg_motd_extended_reboot_warning > 0
   ansible.builtin.template:
     src: '98-reboot-required.j2'
-    dest: '{{ os___app._motd_file }}'
+    dest: '{{ os___app._motd }}'
     owner: 'root'
     group: 'root'
     mode: '0755'
 
-- name: '{{ "MOTD | filesystem | remove " ~ os___app._motd_file }}'
+- name: '{{ "MOTD | filesystem | remove " ~ os___app._motd }}'
   when: os_cfg_motd_extended_reboot_warning == 0
   ansible.builtin.file:
-    path: '{{ os___app._motd_file }}'
+    path: '{{ os___app._motd }}'
     state: 'absent'

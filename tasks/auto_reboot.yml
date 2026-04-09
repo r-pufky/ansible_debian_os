@@ -7,14 +7,14 @@
 # * https://opensource.com/article/20/7/systemd-timers
 
 - name: '{{
-      "Auto reboot | filesystem | set " ~ os___app._systemd_dir ~ "/reboot.*"
+      "Auto reboot | filesystem | set " ~ os___app._systemd_d ~ "/reboot.*"
     }}'
   when: os_cfg_reboot | length > 0
   notify:
     - 'Handlers | systemd reboot.timer'
   ansible.builtin.template:
     src: '{{ "systemd/" ~ item ~ ".j2" }}'
-    dest: '{{ os___app._systemd_dir ~ "/" ~ item }}'
+    dest: '{{ os___app._systemd_d ~ "/" ~ item }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -24,12 +24,12 @@
 
 - name: '{{
       "Auto reboot | filesystem | remove " ~
-      os___app._systemd_dir ~ "/reboot.*"
+      os___app._systemd_d ~ "/reboot.*"
     }}'
   when: os_cfg_reboot | length == 0
   notify: 'Handlers | systemd'
   ansible.builtin.file:
-    path: '{{ os___app._systemd_dir ~ "/" ~ item }}'
+    path: '{{ os___app._systemd_d ~ "/" ~ item }}'
     state: absent
   loop:
     - 'reboot.timer'

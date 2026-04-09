@@ -5,15 +5,15 @@
 
 os___release: "{{ {} | r_pufky.data.v3(
 
-    _date='2025-08-22',
+    _date='2026-03-11',
     _debian='trixie',
   ) }}"
 
 os___app: "{{ {} | r_pufky.data.v3(
 
     _tmpfs='/tmp',
-    _systemd_dir='/etc/systemd/system',
-    _motd_file='/etc/update-motd.d/98-reboot-required',
+    _systemd_d='/etc/systemd/system',
+    _motd='/etc/update-motd.d/98-reboot-required',
   ) }}"
 
 ###############################################################################
