@@ -92,27 +92,27 @@
     - name: 'Verify | test | /etc/systemd/system/reboot.timer'
       ansible.builtin.include_role:
         name: 'r_pufky.data.test'
-        tasks_from: 'copy.yml'
+        tasks_from: 'file.yml'
       vars:
         test_name: 'Verify | test | /etc/systemd/system/reboot.timer'
-        test_src: 'files/reboot.timer'
         test_file: '/etc/systemd/system/reboot.timer'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_state: 'file'
         test_diff: true
 
     - name: 'Verify | test | /etc/systemd/system/reboot.service'
       ansible.builtin.include_role:
         name: 'r_pufky.data.test'
-        tasks_from: 'file.yml'
+        tasks_from: 'copy.yml'
       vars:
         test_name: 'Verify | test | /etc/systemd/system/reboot.service'
+        test_src: 'files/reboot.service'
         test_file: '/etc/systemd/system/reboot.service'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
-        test_state: 'file'
         test_diff: true
 
     # Vagrant user automatically created for VMs; check that is locked down.
